@@ -1,2 +1,1 @@
-
-# file containing instructions and info on this project.
+# instructions for claude code
