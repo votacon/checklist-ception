@@ -9,16 +9,22 @@ import {
 } from "../utils/findNode";
 import { loadFromStorage, saveToStorage } from "../utils/storage";
 import { downloadJson, parseImportedJson } from "../utils/exportImport";
-
-export type Direction = "forward" | "backward";
+import { useNavigation } from "./useNavigation";
 
 export function useChecklist() {
   const [rootItems, setRootItems] = useState<ChecklistItem[]>(() => {
     return loadFromStorage() ?? [];
   });
-  const [navStack, setNavStack] = useState<string[]>([]);
   const [editingItem, setEditingItem] = useState<ChecklistItem | null>(null);
-  const [direction, setDirection] = useState<Direction>("forward");
+
+  const {
+    navStack,
+    direction,
+    drillDown,
+    navigateTo,
+    navigateToRoot,
+    resetNavigation,
+  } = useNavigation();
 
   // Persist on change
   useEffect(() => {
@@ -100,43 +106,23 @@ export function useChecklist() {
     setEditingItem(null);
   }, []);
 
-  // Navigation
-  const drillDown = useCallback((id: string) => {
-    setDirection("forward");
-    setNavStack((prev) => [...prev, id]);
-  }, []);
-
-  const navigateTo = useCallback(
-    (index: number) => {
-      if (index < navStack.length - 1) {
-        setDirection("backward");
-        setNavStack((prev) => prev.slice(0, index + 1));
-      }
-    },
-    [navStack.length],
-  );
-
-  const navigateToRoot = useCallback(() => {
-    if (navStack.length > 0) {
-      setDirection("backward");
-      setNavStack([]);
-    }
-  }, [navStack.length]);
-
   // Export / Import
   const exportData = useCallback(() => {
     downloadJson(rootItems);
   }, [rootItems]);
 
-  const importData = useCallback((text: string): boolean => {
-    const parsed = parseImportedJson(text);
-    if (parsed) {
-      setRootItems(parsed);
-      setNavStack([]);
-      return true;
-    }
-    return false;
-  }, []);
+  const importData = useCallback(
+    (text: string): boolean => {
+      const parsed = parseImportedJson(text);
+      if (parsed) {
+        setRootItems(parsed);
+        resetNavigation();
+        return true;
+      }
+      return false;
+    },
+    [resetNavigation],
+  );
 
   return {
     rootItems,

@@ -1,7 +1,8 @@
 import { ChevronRight, Home } from "lucide-react";
+import type { BreadcrumbItem } from "../types";
 
 interface BreadcrumbsProps {
-  path: { id: string; text: string }[];
+  path: BreadcrumbItem[];
   onNavigateToRoot: () => void;
   onNavigateTo: (index: number) => void;
 }

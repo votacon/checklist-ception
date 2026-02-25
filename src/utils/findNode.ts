@@ -1,4 +1,4 @@
-import type { ChecklistItem } from "../types";
+import type { ChecklistItem, BreadcrumbItem } from "../types";
 
 export function findNodeById(
   items: ChecklistItem[],
@@ -48,8 +48,8 @@ export function getItemsAtPath(
 export function getBreadcrumbPath(
   items: ChecklistItem[],
   navStack: string[],
-): { id: string; text: string }[] {
-  const path: { id: string; text: string }[] = [];
+): BreadcrumbItem[] {
+  const path: BreadcrumbItem[] = [];
   let current = items;
   for (const id of navStack) {
     const node = current.find((item) => item.id === id);

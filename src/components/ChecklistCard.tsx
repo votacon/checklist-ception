@@ -1,6 +1,6 @@
 import type { ChecklistItem } from "../types";
 import { AddItemForm } from "./AddItemForm";
-import { ChecklistItemRow } from "./ChecklistItem";
+import { ChecklistItemRow } from "./ChecklistItemRow";
 import { EmptyState } from "./EmptyState";
 
 interface ChecklistCardProps {

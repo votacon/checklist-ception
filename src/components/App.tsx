@@ -1,30 +1,10 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useChecklist } from "../hooks/useChecklist";
+import { slideVariants, slideTransition } from "../utils/animation";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { ChecklistCard } from "./ChecklistCard";
 import { EditItemModal } from "./EditItemModal";
 import { ExportImportBar } from "./ExportImportBar";
-
-const slideVariants = {
-  enter: (direction: "forward" | "backward") => ({
-    x: direction === "forward" ? 300 : -300,
-    opacity: 0,
-  }),
-  center: {
-    x: 0,
-    opacity: 1,
-  },
-  exit: (direction: "forward" | "backward") => ({
-    x: direction === "forward" ? -300 : 300,
-    opacity: 0,
-  }),
-};
-
-const slideTransition = {
-  type: "spring" as const,
-  stiffness: 300,
-  damping: 30,
-};
 
 export function App() {
   const {

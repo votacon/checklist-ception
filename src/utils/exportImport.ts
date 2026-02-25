@@ -1,16 +1,5 @@
 import type { ChecklistItem } from "../types";
-
-function isValidItem(item: unknown): item is ChecklistItem {
-  if (typeof item !== "object" || item === null) return false;
-  const obj = item as Record<string, unknown>;
-  return (
-    typeof obj.id === "string" &&
-    typeof obj.text === "string" &&
-    typeof obj.completed === "boolean" &&
-    Array.isArray(obj.subtasks) &&
-    obj.subtasks.every(isValidItem)
-  );
-}
+import { isValidData } from "./validation";
 
 export function downloadJson(items: ChecklistItem[]): void {
   const json = JSON.stringify(items, null, 2);
@@ -27,7 +16,7 @@ export function downloadJson(items: ChecklistItem[]): void {
 export function parseImportedJson(text: string): ChecklistItem[] | null {
   try {
     const parsed: unknown = JSON.parse(text);
-    if (Array.isArray(parsed) && parsed.every(isValidItem)) {
+    if (isValidData(parsed)) {
       return parsed;
     }
     return null;
