@@ -80,11 +80,19 @@ useSidebar() -> { isOpen, open, close, toggle }
 ```
 Locks body scroll when sidebar is open.
 
+### `useBarebonesMode`
+Manages the barebones mode toggle:
+```
+useBarebonesMode() -> { barebones: boolean, toggle: () => void }
+```
+Reads/writes a separate localStorage key (`"checklist-ception-barebones"`). Exposed to the component tree via `BarebonesContext`.
+
 No external state library — React `useState` + `useMemo` is sufficient for this app.
 
 ### Persistence
 
 - Storage key: `"checklist-ception-app-state"` (stores full `AppState`)
+- Barebones preference: `"checklist-ception-barebones"` (stores `"true"` or `"false"`, separate from AppState to avoid migration)
 - Legacy migration: on first load, wraps existing `"checklist-ception-data"` items in a checklist titled "My Checklist"
 - Validation: parsed data must match the `AppState` shape with valid `Checklist` and `ChecklistItem` structures; discard on failure
 - Saves on every state change in `useChecklistManager`
@@ -92,30 +100,41 @@ No external state library — React `useState` + `useMemo` is sufficient for thi
 ## Component Tree
 
 ```
-App
-├── Sidebar (fixed overlay, animated)
-│   └── SidebarItem[] (per checklist)
-├── HamburgerButton
-├── ChecklistView (keyed by activeChecklist.id)
-│   ├── ExportImportBar
-│   ├── Breadcrumbs
-│   ├── CascadingCards (horizontal flex with overflow scroll)
-│   │   └── motion.div[] (one per CardLevel, AnimatePresence mode="popLayout")
-│   │       ├── Card title header
-│   │       └── ChecklistCard
-│   │           ├── AddItemForm (hidden when collapsed)
-│   │           └── ChecklistItemRow[] (compact when collapsed, active highlight)
-│   └── EditItemModal (conditional)
+App (BarebonesContext.Provider)
+├── AppContent
+│   ├── Sidebar (fixed overlay; animated or instant based on barebones mode)
+│   │   └── SidebarItem[] (per checklist)
+│   ├── HamburgerButton
+│   ├── BarebonesToggle (Zap/ZapOff icon in header)
+│   ├── ChecklistView (keyed by activeChecklist.id)
+│   │   ├── ExportImportBar
+│   │   ├── Breadcrumbs
+│   │   ├── CascadingCards (horizontal flex with overflow scroll)
+│   │   │   └── motion.div[] or plain div[] (based on barebones mode)
+│   │   │       ├── Card title header
+│   │   │       └── ChecklistCard
+│   │   │           ├── AddItemForm (hidden when collapsed)
+│   │   │           └── ChecklistItemRow[] (compact when collapsed, active highlight)
+│   │   └── EditItemModal (conditional)
 ```
 
 ## Animation Strategy
 
+In **fancy mode** (default):
 - `AnimatePresence mode="popLayout"` wraps the cascading cards
 - Each card enters from the right (`x: 300, scale: 0.95`) and exits to the right
 - `layout` prop on each card enables smooth width transitions when cards collapse/expand
 - Sidebar slides in from left with spring animation (stiffness 400, damping 35)
 - Backdrop fades in/out with 200ms transition
 - Uses Motion spring transitions for natural feel
+
+In **barebones mode**:
+- All Motion components replaced with plain `<div>`s — zero animation overhead
+- Auto-scroll uses `behavior: "instant"` instead of `"smooth"`
+- Sidebar shows/hides instantly with a flat `border-r-2` instead of `shadow-xl`
+- All `transition-colors`, `transition-opacity`, `rounded-*` classes stripped
+- Action buttons always visible (no hover reveal)
+- Flat borders (`border-2 border-gray-400`) instead of rounded shadows
 
 ## Key Decisions
 
@@ -131,3 +150,5 @@ App
 | `crypto.randomUUID()` for IDs | Built into all modern browsers, no dependency |
 | Immutable recursive updates | Safer than mutation; works well with React's diffing |
 | Fixed overlay sidebar | Standard mobile pattern; backdrop click and Escape to close |
+| Barebones mode via Context | Separate localStorage key avoids AppState migration; Context avoids prop drilling |
+| Plain divs in barebones | Completely bypasses Motion runtime for zero animation overhead |

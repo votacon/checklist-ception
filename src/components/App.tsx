@@ -1,7 +1,11 @@
+import { useMemo } from "react";
 import { useChecklist } from "../hooks/useChecklist";
 import { useChecklistManager } from "../hooks/useChecklistManager";
+import { useBarebonesMode } from "../hooks/useBarebonesMode";
 import { useSidebar } from "../hooks/useSidebar";
+import { BarebonesContext, useBarebones } from "../contexts/BarebonesContext";
 import type { Checklist, ChecklistItem } from "../types";
+import { BarebonesToggle } from "./BarebonesToggle";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { CascadingCards } from "./CascadingCards";
 import { EditItemModal } from "./EditItemModal";
@@ -79,9 +83,27 @@ function ChecklistView({ checklist, onItemsChange }: ChecklistViewProps) {
 export function App() {
   const manager = useChecklistManager();
   const sidebar = useSidebar();
+  const { barebones, toggle } = useBarebonesMode();
+  const barebonesCtx = useMemo(() => ({ barebones, toggle }), [barebones, toggle]);
 
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <BarebonesContext.Provider value={barebonesCtx}>
+      <AppContent manager={manager} sidebar={sidebar} />
+    </BarebonesContext.Provider>
+  );
+}
+
+function AppContent({
+  manager,
+  sidebar,
+}: {
+  manager: ReturnType<typeof useChecklistManager>;
+  sidebar: ReturnType<typeof useSidebar>;
+}) {
+  const { barebones } = useBarebones();
+
+  return (
+    <div className={`min-h-screen ${barebones ? "bg-white" : "bg-slate-50"}`}>
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebar.isOpen}
@@ -108,6 +130,7 @@ export function App() {
               </p>
             </div>
           </div>
+          <BarebonesToggle />
         </div>
       </div>
 
