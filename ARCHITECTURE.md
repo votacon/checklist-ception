@@ -23,17 +23,27 @@ AppState {
   checklists: Checklist[]
   activeChecklistId: string
 }
+
+CardLevel {
+  depth: number              // 0 = root, 1+ = drill-down levels
+  parentId: string | null    // null for root
+  title: string              // card header text
+  items: ChecklistItem[]     // items at this level
+  activeChildId: string | null  // which item is drilled into (highlighted)
+}
 ```
 
 ## Navigation Model
 
-Instead of rendering a tree, the UI shows **one level at a time** using a card view.
+The UI uses a **cascading stacked cards** pattern — drilling into an item adds a new card to the right while keeping all ancestor cards visible.
 
 - `navStack: string[]` — array of item IDs representing the drill-down path
-- Empty stack = root level
-- `[id1, id2]` = viewing subtasks of item `id2`, which is a subtask of `id1`
+- Empty stack = root level only (one card)
+- `[id1, id2]` = three cards visible: root → id1's subtasks → id2's subtasks
+- `getAllLevels()` walks the tree following the navStack and returns a `CardLevel[]` — one entry per visible card
+- When 3+ cards are open, ancestor cards (all except the last two) collapse to a narrow width with compact item rows
 
-A `direction` flag (`"forward" | "backward"`) controls slide animation direction.
+Animations always enter/exit from the right — no direction flag needed.
 
 ## State Management
 
@@ -53,15 +63,15 @@ Loads/saves `AppState` to localStorage. Handles migration from the legacy single
 ### `useChecklist`
 Manages items within the active checklist:
 ```
-useChecklist({ initialItems, onItemsChange }) -> {
-  rootItems, navStack, editingItem, direction
-  currentItems, breadcrumbPath
-  addItem, toggleItem, deleteItem, startEdit, saveEdit, cancelEdit
-  drillDown, navigateTo, navigateToRoot
+useChecklist({ initialItems, onItemsChange, checklistTitle }) -> {
+  rootItems, navStack, editingItem
+  cardLevels, breadcrumbPath
+  addItem(text, path), toggleItem, deleteItem, startEdit, saveEdit, cancelEdit
+  drillDown, navigateToDepth, navigateToRoot
   exportData, importData
 }
 ```
-Receives items from the manager and syncs changes back up via `onItemsChange`. The component using this hook is keyed by `activeChecklistId` so switching checklists remounts with fresh state.
+Receives items from the manager and syncs changes back up via `onItemsChange`. The component using this hook is keyed by `activeChecklistId` so switching checklists remounts with fresh state. NavStack is auto-validated — if a tree mutation makes an entry invalid, the stack truncates.
 
 ### `useSidebar`
 Controls sidebar visibility:
@@ -89,18 +99,20 @@ App
 ├── ChecklistView (keyed by activeChecklist.id)
 │   ├── ExportImportBar
 │   ├── Breadcrumbs
-│   ├── AnimatePresence
-│   │   └── ChecklistCard (keyed by navStack)
-│   │       ├── AddItemForm
-│   │       └── ChecklistItemRow[] (or EmptyState)
+│   ├── CascadingCards (horizontal flex with overflow scroll)
+│   │   └── motion.div[] (one per CardLevel, AnimatePresence mode="popLayout")
+│   │       ├── Card title header
+│   │       └── ChecklistCard
+│   │           ├── AddItemForm (hidden when collapsed)
+│   │           └── ChecklistItemRow[] (compact when collapsed, active highlight)
 │   └── EditItemModal (conditional)
 ```
 
 ## Animation Strategy
 
-- `AnimatePresence mode="wait"` wraps the `ChecklistCard`
-- Card key changes when `navStack` changes, triggering exit → enter
-- Direction-aware: drill-down slides left, navigate-back slides right
+- `AnimatePresence mode="popLayout"` wraps the cascading cards
+- Each card enters from the right (`x: 300, scale: 0.95`) and exits to the right
+- `layout` prop on each card enables smooth width transitions when cards collapse/expand
 - Sidebar slides in from left with spring animation (stiffness 400, damping 35)
 - Backdrop fades in/out with 200ms transition
 - Uses Motion spring transitions for natural feel
@@ -111,7 +123,10 @@ App
 |----------|-----------|
 | Multiple hooks, no state library | App is moderate size; hooks keep logic co-located by concern |
 | Key-based remount for checklist switching | Avoids render-time setState; React handles cleanup/init naturally |
-| Card view, not tree | Cleaner UX for mobile; avoids deep nesting layout issues |
+| Cascading cards, not single card swap | All ancestor levels stay visible; spatial context is preserved |
+| Collapsed ancestor cards at 3+ levels | Saves horizontal space; focus stays on the deepest two cards |
+| Path-aware addItem | Each card adds items to its own depth level independently |
+| NavStack auto-validation | Deleting a drilled-into item automatically closes orphaned cards |
 | localStorage, not a DB | Offline-first, zero setup, no auth needed |
 | `crypto.randomUUID()` for IDs | Built into all modern browsers, no dependency |
 | Immutable recursive updates | Safer than mutation; works well with React's diffing |

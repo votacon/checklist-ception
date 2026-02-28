@@ -4,13 +4,13 @@ import type { BreadcrumbItem } from "../types";
 interface BreadcrumbsProps {
   path: BreadcrumbItem[];
   onNavigateToRoot: () => void;
-  onNavigateTo: (index: number) => void;
+  onNavigateToDepth: (depth: number) => void;
 }
 
 export function Breadcrumbs({
   path,
   onNavigateToRoot,
-  onNavigateTo,
+  onNavigateToDepth,
 }: BreadcrumbsProps) {
   if (path.length === 0) return null;
 
@@ -29,7 +29,7 @@ export function Breadcrumbs({
           <ChevronRight className="h-4 w-4 text-slate-300" />
           {index < path.length - 1 ? (
             <button
-              onClick={() => onNavigateTo(index)}
+              onClick={() => onNavigateToDepth(index + 1)}
               className="min-h-[44px] px-2 flex items-center hover:text-blue-500 transition-colors"
             >
               {crumb.text}

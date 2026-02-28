@@ -10,6 +10,8 @@ interface ChecklistCardProps {
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
   onDrillDown: (id: string) => void;
+  activeChildId?: string | null;
+  isCollapsed?: boolean;
 }
 
 export function ChecklistCard({
@@ -19,13 +21,15 @@ export function ChecklistCard({
   onDelete,
   onEdit,
   onDrillDown,
+  activeChildId = null,
+  isCollapsed = false,
 }: ChecklistCardProps) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 space-y-3">
-      <AddItemForm onAdd={onAdd} />
+      {!isCollapsed && <AddItemForm onAdd={onAdd} />}
       <div className="divide-y divide-slate-100">
         {items.length === 0 ? (
-          <EmptyState />
+          !isCollapsed && <EmptyState />
         ) : (
           items.map((item) => (
             <ChecklistItemRow
@@ -35,6 +39,8 @@ export function ChecklistCard({
               onDelete={onDelete}
               onEdit={onEdit}
               onDrillDown={onDrillDown}
+              isActive={item.id === activeChildId}
+              isCompact={isCollapsed}
             />
           ))
         )}

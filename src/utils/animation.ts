@@ -1,21 +1,22 @@
-import type { Direction } from "../types";
-
-export const slideVariants = {
-  enter: (direction: Direction) => ({
-    x: direction === "forward" ? 300 : -300,
+export const cardVariants = {
+  enter: {
+    x: 300,
     opacity: 0,
-  }),
+    scale: 0.95,
+  },
   center: {
     x: 0,
     opacity: 1,
+    scale: 1,
   },
-  exit: (direction: Direction) => ({
-    x: direction === "forward" ? -300 : 300,
+  exit: {
+    x: 300,
     opacity: 0,
-  }),
+    scale: 0.95,
+  },
 };
 
-export const slideTransition = {
+export const cardTransition = {
   type: "spring" as const,
   stiffness: 300,
   damping: 30,

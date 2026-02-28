@@ -4,8 +4,8 @@ import {
   findNodeById,
   updateNodeById,
   deleteNodeById,
-  getItemsAtPath,
   getBreadcrumbPath,
+  getAllLevels,
 } from "../utils/findNode";
 import { downloadJson, parseImportedJson } from "../utils/exportImport";
 import { useNavigation } from "./useNavigation";
@@ -13,11 +13,13 @@ import { useNavigation } from "./useNavigation";
 interface UseChecklistParams {
   initialItems: ChecklistItem[];
   onItemsChange: (items: ChecklistItem[]) => void;
+  checklistTitle: string;
 }
 
 export function useChecklist({
   initialItems,
   onItemsChange,
+  checklistTitle,
 }: UseChecklistParams) {
   const [rootItems, setRootItems] = useState<ChecklistItem[]>(initialItems);
   const [editingItem, setEditingItem] = useState<ChecklistItem | null>(null);
@@ -25,9 +27,9 @@ export function useChecklist({
 
   const {
     navStack,
-    direction,
+    setNavStack,
     drillDown,
-    navigateTo,
+    navigateToDepth,
     navigateToRoot,
     resetNavigation,
   } = useNavigation();
@@ -41,10 +43,23 @@ export function useChecklist({
     onItemsChange(rootItems);
   }, [rootItems, onItemsChange]);
 
+  // NavStack validation: truncate if tree mutations make an entry invalid
+  useEffect(() => {
+    let currentItems = rootItems;
+    for (let i = 0; i < navStack.length; i++) {
+      const node = currentItems.find((item) => item.id === navStack[i]);
+      if (!node) {
+        setNavStack(navStack.slice(0, i));
+        return;
+      }
+      currentItems = node.subtasks;
+    }
+  }, [rootItems, navStack, setNavStack]);
+
   // Derived state
-  const currentItems = useMemo(
-    () => getItemsAtPath(rootItems, navStack),
-    [rootItems, navStack],
+  const cardLevels = useMemo(
+    () => getAllLevels(rootItems, navStack, checklistTitle),
+    [rootItems, navStack, checklistTitle],
   );
 
   const breadcrumbPath = useMemo(
@@ -52,9 +67,9 @@ export function useChecklist({
     [rootItems, navStack],
   );
 
-  // CRUD
+  // CRUD — path-aware addItem
   const addItem = useCallback(
-    (text: string) => {
+    (text: string, path: string[]) => {
       const newItem: ChecklistItem = {
         id: crypto.randomUUID(),
         text: text.trim(),
@@ -62,10 +77,10 @@ export function useChecklist({
         subtasks: [],
       };
 
-      if (navStack.length === 0) {
+      if (path.length === 0) {
         setRootItems((prev) => [...prev, newItem]);
       } else {
-        const parentId = navStack[navStack.length - 1];
+        const parentId = path[path.length - 1];
         setRootItems((prev) =>
           updateNodeById(prev, parentId, (node) => ({
             ...node,
@@ -74,7 +89,7 @@ export function useChecklist({
         );
       }
     },
-    [navStack],
+    [],
   );
 
   const toggleItem = useCallback((id: string) => {
@@ -138,8 +153,7 @@ export function useChecklist({
     rootItems,
     navStack,
     editingItem,
-    direction,
-    currentItems,
+    cardLevels,
     breadcrumbPath,
     addItem,
     toggleItem,
@@ -148,7 +162,7 @@ export function useChecklist({
     saveEdit,
     cancelEdit,
     drillDown,
-    navigateTo,
+    navigateToDepth,
     navigateToRoot,
     exportData,
     importData,

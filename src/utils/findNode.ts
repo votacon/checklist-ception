@@ -1,4 +1,4 @@
-import type { ChecklistItem, BreadcrumbItem } from "../types";
+import type { ChecklistItem, BreadcrumbItem, CardLevel } from "../types";
 
 export function findNodeById(
   items: ChecklistItem[],
@@ -43,6 +43,40 @@ export function getItemsAtPath(
     current = node.subtasks;
   }
   return current;
+}
+
+export function getAllLevels(
+  rootItems: ChecklistItem[],
+  navStack: string[],
+  rootTitle: string,
+): CardLevel[] {
+  const levels: CardLevel[] = [];
+  let currentItems = rootItems;
+
+  // Root level
+  levels.push({
+    depth: 0,
+    parentId: null,
+    title: rootTitle,
+    items: currentItems,
+    activeChildId: navStack.length > 0 ? navStack[0] : null,
+  });
+
+  // Each drill-down level
+  for (let i = 0; i < navStack.length; i++) {
+    const node = currentItems.find((item) => item.id === navStack[i]);
+    if (!node) break;
+    levels.push({
+      depth: i + 1,
+      parentId: node.id,
+      title: node.text,
+      items: node.subtasks,
+      activeChildId: i + 1 < navStack.length ? navStack[i + 1] : null,
+    });
+    currentItems = node.subtasks;
+  }
+
+  return levels;
 }
 
 export function getBreadcrumbPath(

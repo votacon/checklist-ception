@@ -10,7 +10,13 @@ export interface BreadcrumbItem {
   text: string;
 }
 
-export type Direction = "forward" | "backward";
+export interface CardLevel {
+  depth: number;
+  parentId: string | null;
+  title: string;
+  items: ChecklistItem[];
+  activeChildId: string | null;
+}
 
 export interface Checklist {
   id: string;

@@ -1,31 +1,19 @@
 import { useState, useCallback } from "react";
-import type { Direction } from "../types";
 
 export function useNavigation() {
   const [navStack, setNavStack] = useState<string[]>([]);
-  const [direction, setDirection] = useState<Direction>("forward");
 
   const drillDown = useCallback((id: string) => {
-    setDirection("forward");
     setNavStack((prev) => [...prev, id]);
   }, []);
 
-  const navigateTo = useCallback(
-    (index: number) => {
-      if (index < navStack.length - 1) {
-        setDirection("backward");
-        setNavStack((prev) => prev.slice(0, index + 1));
-      }
-    },
-    [navStack.length],
-  );
+  const navigateToDepth = useCallback((depth: number) => {
+    setNavStack((prev) => prev.slice(0, depth));
+  }, []);
 
   const navigateToRoot = useCallback(() => {
-    if (navStack.length > 0) {
-      setDirection("backward");
-      setNavStack([]);
-    }
-  }, [navStack.length]);
+    setNavStack([]);
+  }, []);
 
   const resetNavigation = useCallback(() => {
     setNavStack([]);
@@ -33,9 +21,9 @@ export function useNavigation() {
 
   return {
     navStack,
-    direction,
+    setNavStack,
     drillDown,
-    navigateTo,
+    navigateToDepth,
     navigateToRoot,
     resetNavigation,
   };

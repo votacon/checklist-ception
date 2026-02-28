@@ -1,11 +1,9 @@
-import { AnimatePresence, motion } from "motion/react";
 import { useChecklist } from "../hooks/useChecklist";
 import { useChecklistManager } from "../hooks/useChecklistManager";
 import { useSidebar } from "../hooks/useSidebar";
 import type { Checklist, ChecklistItem } from "../types";
-import { slideVariants, slideTransition } from "../utils/animation";
 import { Breadcrumbs } from "./Breadcrumbs";
-import { ChecklistCard } from "./ChecklistCard";
+import { CascadingCards } from "./CascadingCards";
 import { EditItemModal } from "./EditItemModal";
 import { ExportImportBar } from "./ExportImportBar";
 import { HamburgerButton } from "./HamburgerButton";
@@ -18,10 +16,8 @@ interface ChecklistViewProps {
 
 function ChecklistView({ checklist, onItemsChange }: ChecklistViewProps) {
   const {
-    navStack,
     editingItem,
-    direction,
-    currentItems,
+    cardLevels,
     breadcrumbPath,
     addItem,
     toggleItem,
@@ -30,48 +26,43 @@ function ChecklistView({ checklist, onItemsChange }: ChecklistViewProps) {
     saveEdit,
     cancelEdit,
     drillDown,
-    navigateTo,
+    navigateToDepth,
     navigateToRoot,
     exportData,
     importData,
   } = useChecklist({
     initialItems: checklist.items,
     onItemsChange,
+    checklistTitle: checklist.title,
   });
 
   return (
     <>
       {/* Export/Import bar */}
-      <ExportImportBar onExport={exportData} onImport={importData} />
+      <div className="max-w-lg mx-auto px-4">
+        <ExportImportBar onExport={exportData} onImport={importData} />
+      </div>
 
       {/* Breadcrumbs */}
-      <Breadcrumbs
-        path={breadcrumbPath}
-        onNavigateToRoot={navigateToRoot}
-        onNavigateTo={navigateTo}
-      />
+      <div className="max-w-lg mx-auto px-4">
+        <Breadcrumbs
+          path={breadcrumbPath}
+          onNavigateToRoot={navigateToRoot}
+          onNavigateToDepth={navigateToDepth}
+        />
+      </div>
 
-      {/* Animated card */}
-      <AnimatePresence mode="wait" custom={direction}>
-        <motion.div
-          key={navStack.join("/") || "root"}
-          custom={direction}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={slideTransition}
-        >
-          <ChecklistCard
-            items={currentItems}
-            onAdd={addItem}
-            onToggle={toggleItem}
-            onDelete={deleteItem}
-            onEdit={startEdit}
-            onDrillDown={drillDown}
-          />
-        </motion.div>
-      </AnimatePresence>
+      {/* Cascading cards */}
+      <div className="px-4">
+        <CascadingCards
+          levels={cardLevels}
+          onAdd={addItem}
+          onToggle={toggleItem}
+          onDelete={deleteItem}
+          onEdit={startEdit}
+          onDrillDown={drillDown}
+        />
+      </div>
 
       {/* Edit modal */}
       {editingItem && (
@@ -103,8 +94,8 @@ export function App() {
         onDelete={manager.deleteChecklist}
       />
 
-      <div className="max-w-lg mx-auto px-4 py-8 space-y-4">
-        {/* Header */}
+      {/* Header — stays constrained */}
+      <div className="max-w-lg mx-auto px-4 pt-8 pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1">
             <HamburgerButton onClick={sidebar.toggle} />
@@ -117,10 +108,11 @@ export function App() {
               </p>
             </div>
           </div>
-          {/* Export/Import is rendered inside ChecklistView */}
         </div>
+      </div>
 
-        {/* Checklist content — keyed so switching checklists remounts with fresh state */}
+      {/* Checklist content — full width for horizontal scroll */}
+      <div className="space-y-4 pb-8">
         <ChecklistView
           key={manager.activeChecklist.id}
           checklist={manager.activeChecklist}
