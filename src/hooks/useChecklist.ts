@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import type { ChecklistItem } from "../types";
 import {
   findNodeById,
@@ -7,15 +7,21 @@ import {
   getItemsAtPath,
   getBreadcrumbPath,
 } from "../utils/findNode";
-import { loadFromStorage, saveToStorage } from "../utils/storage";
 import { downloadJson, parseImportedJson } from "../utils/exportImport";
 import { useNavigation } from "./useNavigation";
 
-export function useChecklist() {
-  const [rootItems, setRootItems] = useState<ChecklistItem[]>(() => {
-    return loadFromStorage() ?? [];
-  });
+interface UseChecklistParams {
+  initialItems: ChecklistItem[];
+  onItemsChange: (items: ChecklistItem[]) => void;
+}
+
+export function useChecklist({
+  initialItems,
+  onItemsChange,
+}: UseChecklistParams) {
+  const [rootItems, setRootItems] = useState<ChecklistItem[]>(initialItems);
   const [editingItem, setEditingItem] = useState<ChecklistItem | null>(null);
+  const isInitialRender = useRef(true);
 
   const {
     navStack,
@@ -26,10 +32,14 @@ export function useChecklist() {
     resetNavigation,
   } = useNavigation();
 
-  // Persist on change
+  // Sync items up to parent (skip initial render to avoid circular updates)
   useEffect(() => {
-    saveToStorage(rootItems);
-  }, [rootItems]);
+    if (isInitialRender.current) {
+      isInitialRender.current = false;
+      return;
+    }
+    onItemsChange(rootItems);
+  }, [rootItems, onItemsChange]);
 
   // Derived state
   const currentItems = useMemo(

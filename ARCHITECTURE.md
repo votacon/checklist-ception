@@ -2,18 +2,28 @@
 
 ## Data Model
 
-The entire state is a recursive tree of `ChecklistItem` nodes:
+The app manages multiple checklists, each containing a recursive tree of items:
 
 ```
+Checklist {
+  id: string            // crypto.randomUUID()
+  title: string         // user-given name
+  items: ChecklistItem[]
+  createdAt: number     // Date.now()
+}
+
 ChecklistItem {
   id: string           // crypto.randomUUID()
   text: string         // user-entered label
   completed: boolean   // checked state
   subtasks: ChecklistItem[]  // recursive children
 }
-```
 
-Root state is `ChecklistItem[]` — a flat array of top-level items, each potentially containing nested subtasks.
+AppState {
+  checklists: Checklist[]
+  activeChecklistId: string
+}
+```
 
 ## Navigation Model
 
@@ -27,46 +37,63 @@ A `direction` flag (`"forward" | "backward"`) controls slide animation direction
 
 ## State Management
 
-All state lives in a single custom hook: `useChecklist`.
+State is split across three hooks:
 
+### `useChecklistManager`
+Manages the collection of checklists:
 ```
-useChecklist() -> {
-  // State
+useChecklistManager() -> {
+  checklists, activeChecklist
+  switchChecklist, createChecklist, renameChecklist, deleteChecklist
+  updateActiveItems
+}
+```
+Loads/saves `AppState` to localStorage. Handles migration from the legacy single-checklist format.
+
+### `useChecklist`
+Manages items within the active checklist:
+```
+useChecklist({ initialItems, onItemsChange }) -> {
   rootItems, navStack, editingItem, direction
-
-  // Derived
   currentItems, breadcrumbPath
-
-  // CRUD
   addItem, toggleItem, deleteItem, startEdit, saveEdit, cancelEdit
-
-  // Navigation
   drillDown, navigateTo, navigateToRoot
-
-  // Persistence
   exportData, importData
 }
 ```
+Receives items from the manager and syncs changes back up via `onItemsChange`. The component using this hook is keyed by `activeChecklistId` so switching checklists remounts with fresh state.
+
+### `useSidebar`
+Controls sidebar visibility:
+```
+useSidebar() -> { isOpen, open, close, toggle }
+```
+Locks body scroll when sidebar is open.
 
 No external state library — React `useState` + `useMemo` is sufficient for this app.
 
 ### Persistence
 
-- On mount: load from `localStorage` key `"checklist-ception-data"`
-- On `rootItems` change: save to `localStorage`
-- Validation: parsed data must be an array of objects with required fields; discard on failure
+- Storage key: `"checklist-ception-app-state"` (stores full `AppState`)
+- Legacy migration: on first load, wraps existing `"checklist-ception-data"` items in a checklist titled "My Checklist"
+- Validation: parsed data must match the `AppState` shape with valid `Checklist` and `ChecklistItem` structures; discard on failure
+- Saves on every state change in `useChecklistManager`
 
 ## Component Tree
 
 ```
 App
-├── Breadcrumbs
-├── ExportImportBar
-├── AnimatePresence
-│   └── ChecklistCard (keyed by navStack depth)
-│       ├── AddItemForm
-│       └── ChecklistItem[]  (or EmptyState)
-└── EditItemModal (conditional)
+├── Sidebar (fixed overlay, animated)
+│   └── SidebarItem[] (per checklist)
+├── HamburgerButton
+├── ChecklistView (keyed by activeChecklist.id)
+│   ├── ExportImportBar
+│   ├── Breadcrumbs
+│   ├── AnimatePresence
+│   │   └── ChecklistCard (keyed by navStack)
+│   │       ├── AddItemForm
+│   │       └── ChecklistItemRow[] (or EmptyState)
+│   └── EditItemModal (conditional)
 ```
 
 ## Animation Strategy
@@ -74,14 +101,18 @@ App
 - `AnimatePresence mode="wait"` wraps the `ChecklistCard`
 - Card key changes when `navStack` changes, triggering exit → enter
 - Direction-aware: drill-down slides left, navigate-back slides right
+- Sidebar slides in from left with spring animation (stiffness 400, damping 35)
+- Backdrop fades in/out with 200ms transition
 - Uses Motion spring transitions for natural feel
 
 ## Key Decisions
 
 | Decision | Rationale |
 |----------|-----------|
-| Single hook, no state library | App is small; one hook keeps logic co-located |
+| Multiple hooks, no state library | App is moderate size; hooks keep logic co-located by concern |
+| Key-based remount for checklist switching | Avoids render-time setState; React handles cleanup/init naturally |
 | Card view, not tree | Cleaner UX for mobile; avoids deep nesting layout issues |
 | localStorage, not a DB | Offline-first, zero setup, no auth needed |
 | `crypto.randomUUID()` for IDs | Built into all modern browsers, no dependency |
 | Immutable recursive updates | Safer than mutation; works well with React's diffing |
+| Fixed overlay sidebar | Standard mobile pattern; backdrop click and Escape to close |

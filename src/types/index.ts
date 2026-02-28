@@ -11,3 +11,15 @@ export interface BreadcrumbItem {
 }
 
 export type Direction = "forward" | "backward";
+
+export interface Checklist {
+  id: string;
+  title: string;
+  items: ChecklistItem[];
+  createdAt: number;
+}
+
+export interface AppState {
+  checklists: Checklist[];
+  activeChecklistId: string;
+}
