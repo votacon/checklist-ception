@@ -12,12 +12,17 @@ interface EditItemModalProps {
 
 export function EditItemModal({ item, onSave, onCancel }: EditItemModalProps) {
   const [text, setText] = useState(item.text);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { barebones } = useBarebones();
 
   useEffect(() => {
-    inputRef.current?.focus();
-    inputRef.current?.select();
+    const el = textareaRef.current;
+    if (el) {
+      el.focus();
+      el.select();
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
+    }
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -50,13 +55,17 @@ export function EditItemModal({ item, onSave, onCancel }: EditItemModalProps) {
           </button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            ref={inputRef}
-            type="text"
+          <textarea
+            ref={textareaRef}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => {
+              setText(e.target.value);
+              e.target.style.height = "auto";
+              e.target.style.height = e.target.scrollHeight + "px";
+            }}
             onKeyDown={handleKeyDown}
-            className={`w-full min-h-[44px] px-4 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${s(barebones, "input")}`}
+            rows={1}
+            className={`w-full min-h-[44px] px-4 py-3 text-slate-900 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${s(barebones, "input")}`}
           />
           <div className="flex gap-2 justify-end">
             <button
