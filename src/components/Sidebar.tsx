@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { X, Plus } from "lucide-react";
+import { X, Plus, PanelLeftClose } from "lucide-react";
 import type { Checklist } from "../types";
 import { useBarebones } from "../contexts/BarebonesContext";
 import { SidebarItem } from "./SidebarItem";
 
 interface SidebarProps {
   isOpen: boolean;
+  isCollapsed: boolean;
+  isDesktop: boolean;
   onClose: () => void;
   checklists: Checklist[];
   activeChecklistId: string;
@@ -18,6 +20,8 @@ interface SidebarProps {
 
 export function Sidebar({
   isOpen,
+  isCollapsed,
+  isDesktop,
   onClose,
   checklists,
   activeChecklistId,
@@ -31,7 +35,7 @@ export function Sidebar({
   const newTitleInputRef = useRef<HTMLInputElement>(null);
   const { barebones } = useBarebones();
 
-  // Escape key closes sidebar
+  // Escape key closes/collapses sidebar
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -40,11 +44,12 @@ export function Sidebar({
   );
 
   useEffect(() => {
-    if (isOpen) {
+    const shouldListen = isDesktop ? !isCollapsed : isOpen;
+    if (shouldListen) {
       document.addEventListener("keydown", handleKeyDown);
       return () => document.removeEventListener("keydown", handleKeyDown);
     }
-  }, [isOpen, handleKeyDown]);
+  }, [isOpen, isCollapsed, isDesktop, handleKeyDown]);
 
   useEffect(() => {
     if (isCreating) {
@@ -72,7 +77,7 @@ export function Sidebar({
 
   const handleSwitch = (id: string) => {
     onSwitch(id);
-    onClose();
+    if (!isDesktop) onClose();
   };
 
   const panelContent = (
@@ -83,9 +88,13 @@ export function Sidebar({
         <button
           onClick={onClose}
           className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-slate-600 ${barebones ? "" : "transition-colors"}`}
-          aria-label="Close sidebar"
+          aria-label={isDesktop ? "Collapse sidebar" : "Close sidebar"}
         >
-          <X className="h-5 w-5" />
+          {isDesktop ? (
+            <PanelLeftClose className="h-5 w-5" />
+          ) : (
+            <X className="h-5 w-5" />
+          )}
         </button>
       </div>
 
@@ -145,16 +154,29 @@ export function Sidebar({
     </>
   );
 
+  // Desktop: persistent inline panel
+  if (isDesktop) {
+    if (isCollapsed) return null;
+    return (
+      <aside
+        className={`w-72 shrink-0 bg-white flex flex-col h-screen sticky top-0 ${
+          barebones ? "border-r-2 border-gray-400" : "border-r border-slate-200"
+        }`}
+      >
+        {panelContent}
+      </aside>
+    );
+  }
+
+  // Mobile: overlay
   if (barebones) {
     if (!isOpen) return null;
     return (
       <>
-        {/* Backdrop */}
         <div
           className="fixed inset-0 bg-black/40 z-40"
           onClick={onClose}
         />
-        {/* Panel */}
         <div className="fixed inset-y-0 left-0 w-72 max-w-[80vw] bg-white border-r-2 border-gray-400 z-50 flex flex-col">
           {panelContent}
         </div>
@@ -166,7 +188,6 @@ export function Sidebar({
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -175,8 +196,6 @@ export function Sidebar({
             className="fixed inset-0 bg-black/40 z-40"
             onClick={onClose}
           />
-
-          {/* Panel */}
           <motion.div
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}

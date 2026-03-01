@@ -1,15 +1,43 @@
 import { useState, useCallback, useEffect } from "react";
 
+const DESKTOP_QUERY = "(min-width: 1024px)";
+
 export function useSidebar() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false); // mobile overlay
+  const [isCollapsed, setIsCollapsed] = useState(false); // desktop panel
+  const [isDesktop, setIsDesktop] = useState(
+    () => window.matchMedia(DESKTOP_QUERY).matches,
+  );
 
-  const open = useCallback(() => setIsOpen(true), []);
-  const close = useCallback(() => setIsOpen(false), []);
-  const toggle = useCallback(() => setIsOpen((prev) => !prev), []);
-
-  // Lock body scroll when open
+  // Track viewport size changes
   useEffect(() => {
-    if (isOpen) {
+    const mq = window.matchMedia(DESKTOP_QUERY);
+    const handler = (e: MediaQueryListEvent) => {
+      setIsDesktop(e.matches);
+      if (e.matches) setIsOpen(false); // close mobile overlay when switching to desktop
+    };
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+
+  const open = useCallback(() => {
+    if (isDesktop) setIsCollapsed(false);
+    else setIsOpen(true);
+  }, [isDesktop]);
+
+  const close = useCallback(() => {
+    if (isDesktop) setIsCollapsed(true);
+    else setIsOpen(false);
+  }, [isDesktop]);
+
+  const toggle = useCallback(() => {
+    if (isDesktop) setIsCollapsed((prev) => !prev);
+    else setIsOpen((prev) => !prev);
+  }, [isDesktop]);
+
+  // Lock body scroll only when mobile overlay is open
+  useEffect(() => {
+    if (!isDesktop && isOpen) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
@@ -17,7 +45,7 @@ export function useSidebar() {
     return () => {
       document.body.style.overflow = "";
     };
-  }, [isOpen]);
+  }, [isOpen, isDesktop]);
 
-  return { isOpen, open, close, toggle };
+  return { isOpen, isCollapsed, isDesktop, open, close, toggle };
 }

@@ -103,10 +103,12 @@ function AppContent({
   const { barebones } = useBarebones();
 
   return (
-    <div className={`min-h-screen ${barebones ? "bg-white" : "bg-slate-50"}`}>
+    <div className={`flex min-h-screen ${barebones ? "bg-white" : "bg-slate-50"}`}>
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebar.isOpen}
+        isCollapsed={sidebar.isCollapsed}
+        isDesktop={sidebar.isDesktop}
         onClose={sidebar.close}
         checklists={manager.checklists}
         activeChecklistId={manager.activeChecklist.id}
@@ -116,31 +118,34 @@ function AppContent({
         onDelete={manager.deleteChecklist}
       />
 
-      {/* Header — stays constrained */}
-      <div className="max-w-lg mx-auto px-4 pt-8 pb-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <HamburgerButton onClick={sidebar.toggle} />
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">
-                Checklist-ception
-              </h1>
-              <p className="text-sm text-slate-500 -mt-0.5">
-                {manager.activeChecklist.title}
-              </p>
+      {/* Main content */}
+      <div className="flex-1 min-w-0">
+        {/* Header — stays constrained */}
+        <div className="max-w-lg mx-auto px-4 pt-8 pb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <HamburgerButton onClick={sidebar.toggle} />
+              <div>
+                <h1 className="text-2xl font-bold text-slate-900">
+                  Checklist-ception
+                </h1>
+                <p className="text-sm text-slate-500 -mt-0.5">
+                  {manager.activeChecklist.title}
+                </p>
+              </div>
             </div>
+            <BarebonesToggle />
           </div>
-          <BarebonesToggle />
         </div>
-      </div>
 
-      {/* Checklist content — full width for horizontal scroll */}
-      <div className="space-y-4 pb-8">
-        <ChecklistView
-          key={manager.activeChecklist.id}
-          checklist={manager.activeChecklist}
-          onItemsChange={manager.updateActiveItems}
-        />
+        {/* Checklist content — full width for horizontal scroll */}
+        <div className="space-y-4 pb-8">
+          <ChecklistView
+            key={manager.activeChecklist.id}
+            checklist={manager.activeChecklist}
+            onItemsChange={manager.updateActiveItems}
+          />
+        </div>
       </div>
     </div>
   );
