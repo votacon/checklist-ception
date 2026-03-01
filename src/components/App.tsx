@@ -67,12 +67,12 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
     return (
       <>
         {/* Export/Import bar */}
-        <div className="max-w-lg mx-auto px-4">
+        <div className="max-w-lg px-4">
           <ExportImportBar onExport={exportData} onImport={importData} onResetChecks={resetChecks} />
         </div>
 
         {/* Breadcrumbs */}
-        <div className="max-w-lg mx-auto px-4">
+        <div className="max-w-lg px-4">
           <Breadcrumbs
             path={breadcrumbPath}
             onNavigateToRoot={navigateToRoot}
@@ -185,18 +185,13 @@ function AppContent({
       {/* Main content */}
       <div className="flex-1 min-w-0">
         {/* Header — stays constrained */}
-        <div className="max-w-lg mx-auto px-4 pt-8 pb-4">
+        <div className="max-w-lg px-4 pt-8 pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
               <HamburgerButton onClick={sidebar.toggle} />
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900">
-                  Checklist-ception
-                </h1>
-                <p className="text-sm text-slate-500 -mt-0.5">
-                  {manager.activeChecklist.title}
-                </p>
-              </div>
+              <h1 className="text-3xl font-bold text-slate-900">
+                {manager.activeChecklist.title}
+              </h1>
             </div>
             <BarebonesToggle />
           </div>

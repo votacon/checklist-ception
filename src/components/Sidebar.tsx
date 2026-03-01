@@ -62,7 +62,10 @@ export function Sidebar({
     <>
       {/* Header */}
       <div className={`flex items-center justify-between px-4 py-4 border-b ${s(barebones, "border-subtle")}`}>
-        <h2 className="text-lg font-bold text-slate-900">Checklists</h2>
+        <div>
+          <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Checklist-ception</p>
+          <h2 className="text-lg font-bold text-slate-900">Checklists</h2>
+        </div>
         <button
           onClick={onClose}
           className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-slate-600 ${s(barebones, "btn-icon")}`}
