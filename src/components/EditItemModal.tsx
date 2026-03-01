@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import type { ChecklistItem } from "../types";
 import { s } from "../utils/styles";
-import { useBarebones } from "../contexts/BarebonesContext";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface EditItemModalProps {
   item: ChecklistItem;
@@ -13,7 +13,7 @@ interface EditItemModalProps {
 export function EditItemModal({ item, onSave, onCancel }: EditItemModalProps) {
   const [text, setText] = useState(item.text);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { barebones } = useBarebones();
+  const { theme } = useTheme();
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -41,14 +41,14 @@ export function EditItemModal({ item, onSave, onCancel }: EditItemModalProps) {
       onClick={onCancel}
     >
       <div
-        className={`bg-white w-full max-w-md p-6 space-y-4 ${s(barebones, "modal")}`}
+        className={`w-full max-w-md p-6 space-y-4 ${s(theme, "modal")}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">Edit Item</h2>
+          <h2 className={`text-lg font-semibold ${s(theme, "text-heading")}`}>Edit Item</h2>
           <button
             onClick={onCancel}
-            className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-slate-600 ${s(barebones, "btn-icon")}`}
+            className={`min-h-[44px] min-w-[44px] flex items-center justify-center ${s(theme, "icon-muted")} ${s(theme, "icon-close-hover")} ${s(theme, "btn-icon")}`}
             aria-label="Close"
           >
             <X className="h-5 w-5" />
@@ -65,19 +65,19 @@ export function EditItemModal({ item, onSave, onCancel }: EditItemModalProps) {
             }}
             onKeyDown={handleKeyDown}
             rows={1}
-            className={`w-full min-h-[44px] px-4 py-3 text-slate-900 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${s(barebones, "input")}`}
+            className={`w-full min-h-[44px] px-4 py-3 ${s(theme, "text-body")} resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${s(theme, "input")}`}
           />
           <div className="flex gap-2 justify-end">
             <button
               type="button"
               onClick={onCancel}
-              className={`min-h-[44px] px-4 text-slate-600 ${s(barebones, "btn-secondary")}`}
+              className={`min-h-[44px] px-4 ${s(theme, "btn-text")} ${s(theme, "btn-secondary")}`}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className={`min-h-[44px] px-4 text-white ${s(barebones, "btn-primary")}`}
+              className={`min-h-[44px] px-4 text-white ${s(theme, "btn-primary")}`}
             >
               Save
             </button>

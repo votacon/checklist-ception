@@ -1,13 +1,14 @@
 import { useMemo, useRef, useState, useCallback, useImperativeHandle, forwardRef } from "react";
 import { useChecklist } from "../hooks/useChecklist";
 import { useChecklistManager } from "../hooks/useChecklistManager";
-import { useBarebonesMode } from "../hooks/useBarebonesMode";
+import { useThemeMode } from "../hooks/useThemeMode";
 import { useSidebar } from "../hooks/useSidebar";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
-import { BarebonesContext, useBarebones } from "../contexts/BarebonesContext";
+import { ThemeContext, useTheme } from "../contexts/ThemeContext";
+import { s } from "../utils/styles";
 import type { Checklist, ChecklistItem } from "../types";
 import { parseImportedJson, parseImportedBundleJson } from "../utils/exportImport";
-import { BarebonesToggle } from "./BarebonesToggle";
+import { ThemePicker } from "./ThemePicker";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { CascadingCards } from "./CascadingCards";
 import { EditItemModal } from "./EditItemModal";
@@ -111,26 +112,29 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
 export function App() {
   const manager = useChecklistManager();
   const sidebar = useSidebar();
-  const { barebones, toggle } = useBarebonesMode();
-  const barebonesCtx = useMemo(() => ({ barebones, toggle }), [barebones, toggle]);
+  const { theme, setTheme, cycleTheme, isBarebones } = useThemeMode();
+  const themeCtx = useMemo(
+    () => ({ theme, setTheme, cycleTheme, isBarebones }),
+    [theme, setTheme, cycleTheme, isBarebones],
+  );
 
   return (
-    <BarebonesContext.Provider value={barebonesCtx}>
-      <AppContent manager={manager} sidebar={sidebar} barebonesToggle={toggle} />
-    </BarebonesContext.Provider>
+    <ThemeContext.Provider value={themeCtx}>
+      <AppContent manager={manager} sidebar={sidebar} cycleTheme={cycleTheme} />
+    </ThemeContext.Provider>
   );
 }
 
 function AppContent({
   manager,
   sidebar,
-  barebonesToggle,
+  cycleTheme,
 }: {
   manager: ReturnType<typeof useChecklistManager>;
   sidebar: ReturnType<typeof useSidebar>;
-  barebonesToggle: () => void;
+  cycleTheme: () => void;
 }) {
-  const { barebones } = useBarebones();
+  const { theme } = useTheme();
   const [showHelp, setShowHelp] = useState(false);
   const checklistViewRef = useRef<ChecklistViewHandle>(null);
   const createFormRef = useRef<SidebarCreateFormHandle>(null);
@@ -181,13 +185,13 @@ function AppContent({
     onToggleSidebar: sidebar.toggle,
     onNavigateBack: () => checklistViewRef.current?.navigateBack(),
     onNavigateHome: () => checklistViewRef.current?.navigateHome(),
-    onToggleBarebones: barebonesToggle,
+    onCycleTheme: cycleTheme,
     onExport: () => checklistViewRef.current?.exportData(),
     onToggleHelp: handleToggleHelp,
   });
 
   return (
-    <div className={`flex min-h-screen ${barebones ? "bg-white" : "bg-slate-50"}`}>
+    <div className={`flex min-h-screen ${s(theme, "page-bg")}`}>
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebar.isOpen}
@@ -210,11 +214,11 @@ function AppContent({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
               <HamburgerButton onClick={sidebar.toggle} />
-              <h1 className="text-3xl font-bold text-slate-900">
+              <h1 className={`text-3xl font-bold ${s(theme, "text-heading")}`}>
                 {manager.activeChecklist.title}
               </h1>
             </div>
-            <BarebonesToggle />
+            <ThemePicker />
           </div>
         </div>
 

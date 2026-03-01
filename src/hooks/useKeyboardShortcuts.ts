@@ -7,7 +7,7 @@ interface KeyboardShortcutHandlers {
   onToggleSidebar: () => void;
   onNavigateBack: () => void;
   onNavigateHome: () => void;
-  onToggleBarebones: () => void;
+  onCycleTheme: () => void;
   onExport: () => void;
   onToggleHelp: () => void;
 }
@@ -56,9 +56,9 @@ export function useKeyboardShortcuts(handlers: KeyboardShortcutHandlers) {
           e.preventDefault();
           h.onNavigateHome();
           break;
-        case SHORTCUTS.TOGGLE_BAREBONES.key:
+        case SHORTCUTS.CYCLE_THEME.key:
           e.preventDefault();
-          h.onToggleBarebones();
+          h.onCycleTheme();
           break;
         case SHORTCUTS.EXPORT.key:
           e.preventDefault();

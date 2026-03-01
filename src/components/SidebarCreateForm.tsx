@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 import { Plus } from "lucide-react";
 import { s } from "../utils/styles";
-import { useBarebones } from "../contexts/BarebonesContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { Tooltip } from "./Tooltip";
 
 export interface SidebarCreateFormHandle {
@@ -17,7 +17,7 @@ export const SidebarCreateForm = forwardRef<SidebarCreateFormHandle, SidebarCrea
     const [isCreating, setIsCreating] = useState(false);
     const [newTitle, setNewTitle] = useState("");
     const newTitleInputRef = useRef<HTMLInputElement>(null);
-    const { barebones } = useBarebones();
+    const { theme } = useTheme();
 
     useImperativeHandle(ref, () => ({
       startCreating: () => setIsCreating(true),
@@ -63,7 +63,7 @@ export const SidebarCreateForm = forwardRef<SidebarCreateFormHandle, SidebarCrea
             }}
             onKeyDown={handleKeyDown}
             placeholder="Checklist name…"
-            className={`flex-1 min-w-0 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${s(barebones, "input")}`}
+            className={`flex-1 min-w-0 px-3 py-2 text-sm outline-none focus:ring-2 ${s(theme, "focus-ring")} focus:border-transparent ${s(theme, "input")}`}
           />
         </div>
       );
@@ -73,7 +73,7 @@ export const SidebarCreateForm = forwardRef<SidebarCreateFormHandle, SidebarCrea
       <Tooltip text="New checklist" shortcut="N" position="top">
         <button
           onClick={() => setIsCreating(true)}
-          className={`w-full min-h-[44px] flex items-center justify-center gap-2 text-sm font-medium text-blue-600 ${s(barebones, "btn-outline")}`}
+          className={`w-full min-h-[44px] flex items-center justify-center gap-2 text-sm font-medium ${s(theme, "accent-text")} ${s(theme, "btn-outline")}`}
         >
           <Plus className="h-4 w-4" />
           New Checklist

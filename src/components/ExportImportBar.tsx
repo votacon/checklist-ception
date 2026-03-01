@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { Download, Upload, RotateCcw, Archive } from "lucide-react";
 import { s } from "../utils/styles";
-import { useBarebones } from "../contexts/BarebonesContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { Tooltip } from "./Tooltip";
 
 interface ExportImportBarProps {
@@ -13,7 +13,7 @@ interface ExportImportBarProps {
 
 export function ExportImportBar({ onExport, onExportAll, onImport, onResetChecks }: ExportImportBarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { barebones } = useBarebones();
+  const { theme } = useTheme();
 
   const handleImportClick = () => {
     fileInputRef.current?.click();
@@ -47,7 +47,7 @@ export function ExportImportBar({ onExport, onExportAll, onImport, onResetChecks
     e.target.value = "";
   };
 
-  const buttonClass = `min-h-[44px] px-4 flex items-center gap-2 text-slate-600 text-sm ${s(barebones, "btn-export")}`;
+  const buttonClass = `min-h-[44px] px-4 flex items-center gap-2 ${s(theme, "btn-text")} text-sm ${s(theme, "btn-export")}`;
 
   return (
     <div className="flex gap-2">

@@ -1,6 +1,7 @@
 export const STORAGE_KEYS = {
   APP_STATE: "checklist-ception-app-state",
   BAREBONES: "checklist-ception-barebones",
+  THEME: "checklist-ception-theme",
   LEGACY_DATA: "checklist-ception-data",
 } as const;
 

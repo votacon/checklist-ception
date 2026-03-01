@@ -14,7 +14,7 @@ import {
 } from "@dnd-kit/sortable";
 import type { ChecklistItem } from "../types";
 import { s } from "../utils/styles";
-import { useBarebones } from "../contexts/BarebonesContext";
+import { useTheme } from "../contexts/ThemeContext";
 import { AddItemForm } from "./AddItemForm";
 import { ChecklistItemRow } from "./ChecklistItemRow";
 import { EmptyState } from "./EmptyState";
@@ -42,7 +42,7 @@ export function ChecklistCard({
   isCollapsed = false,
   onReorder,
 }: ChecklistCardProps) {
-  const { barebones } = useBarebones();
+  const { theme } = useTheme();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -60,7 +60,7 @@ export function ChecklistCard({
   }
 
   return (
-    <div className={`bg-white p-4 space-y-3 ${s(barebones, "card")}`}>
+    <div className={`p-4 space-y-3 ${s(theme, "card")}`}>
       {!isCollapsed && <AddItemForm onAdd={onAdd} />}
       <DndContext
         sensors={sensors}
@@ -71,7 +71,7 @@ export function ChecklistCard({
           items={items.map((item) => item.id)}
           strategy={verticalListSortingStrategy}
         >
-          <div className="divide-y divide-slate-100">
+          <div className={`divide-y ${s(theme, "divider")}`}>
             {items.length === 0 ? (
               !isCollapsed && <EmptyState />
             ) : (

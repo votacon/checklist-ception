@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import type { Checklist } from "../types";
 import { s } from "../utils/styles";
-import { useBarebones } from "../contexts/BarebonesContext";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface SidebarItemProps {
   checklist: Checklist;
@@ -24,7 +24,7 @@ export function SidebarItem({
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(checklist.title);
   const inputRef = useRef<HTMLInputElement>(null);
-  const { barebones } = useBarebones();
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (isEditing) {
@@ -67,10 +67,10 @@ export function SidebarItem({
   return (
     <div
       onClick={() => !isEditing && onSwitch(checklist.id)}
-      className={`group flex items-center gap-2 min-h-[44px] px-3 py-2 cursor-pointer ${s(barebones, "row")} ${
+      className={`group flex items-center gap-2 min-h-[44px] px-3 py-2 cursor-pointer ${s(theme, "row")} ${
         isActive
-          ? "bg-blue-50 text-blue-700"
-          : barebones ? "text-slate-700" : "text-slate-700 hover:bg-slate-100"
+          ? s(theme, "sidebar-active")
+          : s(theme, "sidebar-inactive")
       }`}
     >
       {isEditing ? (
@@ -81,7 +81,7 @@ export function SidebarItem({
           onChange={(e) => setEditTitle(e.target.value)}
           onBlur={handleSaveEdit}
           onKeyDown={handleKeyDown}
-          className={`flex-1 min-w-0 px-2 py-1 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-blue-400 ${s(barebones, "input-inline")}`}
+          className={`flex-1 min-w-0 px-2 py-1 text-sm ${s(theme, "text-body")} outline-none focus:ring-2 ${s(theme, "focus-ring")} ${s(theme, "input-inline")}`}
         />
       ) : (
         <>
@@ -89,14 +89,14 @@ export function SidebarItem({
             {checklist.title}
           </span>
           {itemCount > 0 && (
-            <span className={`text-xs text-slate-400 px-2 py-0.5 shrink-0 ${s(barebones, "badge")}`}>
+            <span className={`text-xs ${s(theme, "text-muted")} px-2 py-0.5 shrink-0 ${s(theme, "badge")}`}>
               {itemCount}
             </span>
           )}
-          <div className={`flex items-center gap-0.5 shrink-0 ${s(barebones, "hover-reveal")}`}>
+          <div className={`flex items-center gap-0.5 shrink-0 ${s(theme, "hover-reveal")}`}>
             <button
               onClick={handleStartEdit}
-              className={`min-h-[32px] min-w-[32px] flex items-center justify-center text-slate-400 hover:text-blue-500 ${s(barebones, "btn-icon")}`}
+              className={`min-h-[32px] min-w-[32px] flex items-center justify-center ${s(theme, "icon-muted")} ${s(theme, "icon-hover")} ${s(theme, "btn-icon")}`}
               aria-label="Rename checklist"
             >
               <Pencil className="h-3.5 w-3.5" />
@@ -104,7 +104,7 @@ export function SidebarItem({
             {!isLastChecklist && (
               <button
                 onClick={handleDelete}
-                className={`min-h-[32px] min-w-[32px] flex items-center justify-center text-slate-400 hover:text-red-500 ${s(barebones, "btn-icon")}`}
+                className={`min-h-[32px] min-w-[32px] flex items-center justify-center ${s(theme, "icon-muted")} hover:text-red-500 ${s(theme, "btn-icon")}`}
                 aria-label="Delete checklist"
               >
                 <Trash2 className="h-3.5 w-3.5" />

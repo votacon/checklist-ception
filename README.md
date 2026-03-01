@@ -11,7 +11,7 @@ A recursive checklist app where every item can contain its own checklist. Drill 
 - **Cascade collapse** — at 3+ levels deep, ancestor cards shrink to save space while keeping context
 - **Breadcrumb navigation** — clickable path to jump back to any level
 - **Animated transitions** — smooth spring animations when cards enter, exit, and resize
-- **Barebones mode** — toggle in the header strips all animations and rounded styling for a flat, instant, old-school look; preference persists across sessions
+- **6 visual themes** — Barebones, Fancy, Vibrant, Pastel, Playful, and Neon; pick from a popover or cycle with `B`; preference persists across sessions
 - **Persistent storage** — data saved to localStorage, survives refresh
 - **Export/Import** — download your data as JSON, import it on another device
 - **Mobile-friendly** — 44px+ touch targets, responsive layout
@@ -47,7 +47,7 @@ Open http://localhost:5173 in your browser.
 11. **Delete an item** — click the trash icon to remove an item and all its subtasks
 12. **Export** — click Export to download the active checklist as JSON
 13. **Import** — click Import to load a previously exported JSON file
-14. **Toggle barebones mode** — click the Zap icon (top-right) to switch between fancy and barebones styling
+14. **Change theme** — click the Palette icon (top-right) to pick from 6 visual themes, or press `B` to cycle
 
 ## Keyboard Shortcuts
 
@@ -60,7 +60,7 @@ Press `?` to see all shortcuts. Shortcuts are disabled while typing in an input 
 | `S` | Toggle sidebar |
 | `⌫` | Navigate back one level |
 | `H` | Navigate to root |
-| `B` | Toggle barebones mode |
+| `B` | Cycle theme |
 | `E` | Export checklist as JSON |
 | `?` | Show/hide keyboard shortcuts help |
 

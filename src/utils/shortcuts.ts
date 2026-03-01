@@ -10,7 +10,7 @@ export const SHORTCUTS = {
   TOGGLE_SIDEBAR: { key: "s", label: "S", description: "Toggle sidebar" },
   NAVIGATE_BACK: { key: "Backspace", label: "⌫", description: "Go back one level" },
   NAVIGATE_HOME: { key: "h", label: "H", description: "Go to root" },
-  TOGGLE_BAREBONES: { key: "b", label: "B", description: "Toggle barebones mode" },
+  CYCLE_THEME: { key: "b", label: "B", description: "Cycle theme" },
   EXPORT: { key: "e", label: "E", description: "Export checklist" },
   SHOW_HELP: { key: "?", label: "?", description: "Show keyboard shortcuts" },
 } as const satisfies Record<string, ShortcutDefinition>;

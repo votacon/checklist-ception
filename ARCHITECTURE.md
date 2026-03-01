@@ -80,19 +80,19 @@ useSidebar() -> { isOpen, open, close, toggle }
 ```
 Locks body scroll when sidebar is open.
 
-### `useBarebonesMode`
-Manages the barebones mode toggle:
+### `useThemeMode`
+Manages the active theme:
 ```
-useBarebonesMode() -> { barebones: boolean, toggle: () => void }
+useThemeMode() -> { theme: Theme, setTheme, cycleTheme, isBarebones: boolean }
 ```
-Reads/writes a separate localStorage key (`"checklist-ception-barebones"`). Exposed to the component tree via `BarebonesContext`.
+Reads/writes `"checklist-ception-theme"` in localStorage. On first load, migrates from the old `"checklist-ception-barebones"` key if present. Exposed to the component tree via `ThemeContext`. Six themes are available: `barebones`, `fancy`, `vibrant`, `pastel`, `playful`, `neon`.
 
 ### `useKeyboardShortcuts`
 Global keydown listener for single-key shortcuts (Gmail/GitHub-style):
 ```
 useKeyboardShortcuts({
   onFocusAddItem, onNewChecklist, onToggleSidebar,
-  onNavigateBack, onNavigateHome, onToggleBarebones,
+  onNavigateBack, onNavigateHome, onCycleTheme,
   onExport, onToggleHelp
 })
 ```
@@ -103,7 +103,7 @@ No external state library — React `useState` + `useMemo` is sufficient for thi
 ### Persistence
 
 - Storage key: `"checklist-ception-app-state"` (stores full `AppState`)
-- Barebones preference: `"checklist-ception-barebones"` (stores `"true"` or `"false"`, separate from AppState to avoid migration)
+- Theme preference: `"checklist-ception-theme"` (stores theme name string, e.g. `"fancy"`, `"neon"`; migrates from old `"checklist-ception-barebones"` key)
 - Legacy migration: on first load, wraps existing `"checklist-ception-data"` items in a checklist titled "My Checklist"
 - Validation: parsed data must match the `AppState` shape with valid `Checklist` and `ChecklistItem` structures; discard on failure
 - Saves on every state change in `useChecklistManager`
@@ -111,12 +111,12 @@ No external state library — React `useState` + `useMemo` is sufficient for thi
 ## Component Tree
 
 ```
-App (BarebonesContext.Provider)
+App (ThemeContext.Provider)
 ├── AppContent
-│   ├── Sidebar (fixed overlay; animated or instant based on barebones mode)
+│   ├── Sidebar (fixed overlay; animated or instant based on theme)
 │   │   └── SidebarItem[] (per checklist)
 │   ├── HamburgerButton
-│   ├── BarebonesToggle (Zap/ZapOff icon in header)
+│   ├── ThemePicker (Palette icon in header; popover with 6 themes)
 │   ├── ChecklistView (keyed by activeChecklist.id)
 │   │   ├── ExportImportBar
 │   │   ├── Breadcrumbs
@@ -131,7 +131,7 @@ App (BarebonesContext.Provider)
 ```
 
 ### Tooltip
-A pure-CSS tooltip component wrapping any element. Shows description text and optional `<kbd>` shortcut badge on hover with 300ms delay. Used on HamburgerButton, BarebonesToggle, ExportImportBar, Breadcrumbs home button, AddItemForm, and SidebarCreateForm.
+A pure-CSS tooltip component wrapping any element. Shows description text and optional `<kbd>` shortcut badge on hover with 300ms delay. Used on HamburgerButton, ThemePicker, ExportImportBar, Breadcrumbs home button, AddItemForm, and SidebarCreateForm.
 
 ## Animation Strategy
 
@@ -165,7 +165,7 @@ In **barebones mode**:
 | `crypto.randomUUID()` for IDs | Built into all modern browsers, no dependency |
 | Immutable recursive updates | Safer than mutation; works well with React's diffing |
 | Fixed overlay sidebar | Standard mobile pattern; backdrop click and Escape to close |
-| Barebones mode via Context | Separate localStorage key avoids AppState migration; Context avoids prop drilling |
+| Theme system via Context | Separate localStorage key avoids AppState migration; Context avoids prop drilling; `s(theme, key)` utility maps style keys per theme |
 | Plain divs in barebones | Completely bypasses Motion runtime for zero animation overhead |
 | Single-key shortcuts with input guard | Gmail/GitHub-style; no modifier keys; suppressed when typing in inputs |
 | handlersRef pattern | Event listener registers once; avoids teardown/re-register on every render |

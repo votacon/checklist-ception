@@ -3,7 +3,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import type { ChecklistItem as ChecklistItemType } from "../types";
 import { s } from "../utils/styles";
-import { useBarebones } from "../contexts/BarebonesContext";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface ChecklistItemProps {
   item: ChecklistItemType;
@@ -25,7 +25,7 @@ export function ChecklistItemRow({
   isCompact = false,
 }: ChecklistItemProps) {
   const subtaskCount = item.subtasks.length;
-  const { barebones } = useBarebones();
+  const { theme } = useTheme();
 
   const {
     attributes,
@@ -45,10 +45,10 @@ export function ChecklistItemRow({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group flex items-center gap-1.5 overflow-hidden ${s(barebones, "row")} ${
+      className={`group flex items-center gap-1.5 overflow-hidden ${s(theme, "row")} ${
         isActive
-          ? "border-l-3 border-blue-500 bg-blue-100"
-          : s(barebones, "row-hover")
+          ? s(theme, "row-active")
+          : s(theme, "row-hover")
       } ${isCompact ? "min-h-[32px] px-2 py-1" : "min-h-[40px] px-3 py-2"} ${
         isDragging ? "opacity-50 z-50" : ""
       }`}
@@ -58,7 +58,7 @@ export function ChecklistItemRow({
         <button
           {...attributes}
           {...listeners}
-          className={`flex items-center justify-center h-8 w-6 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing ${s(barebones, "hover-reveal")}`}
+          className={`flex items-center justify-center h-8 w-6 ${s(theme, "text-faint")} ${s(theme, "icon-hover")} cursor-grab active:cursor-grabbing ${s(theme, "hover-reveal")}`}
           aria-label="Drag to reorder"
         >
           <GripVertical className="h-4 w-4" />
@@ -76,12 +76,12 @@ export function ChecklistItemRow({
         aria-label={item.completed ? "Mark incomplete" : "Mark complete"}
       >
         <div
-          className={`border-2 flex items-center justify-center ${s(barebones, "checkbox")} ${
+          className={`border-2 flex items-center justify-center ${s(theme, "checkbox")} ${
             isCompact ? "h-5 w-5" : "h-6 w-6"
           } ${
             item.completed
-              ? "bg-blue-500 border-blue-500"
-              : "border-slate-300 hover:border-blue-400"
+              ? s(theme, "checkbox-checked")
+              : s(theme, "checkbox-unchecked")
           }`}
         >
           {item.completed && (
@@ -99,13 +99,13 @@ export function ChecklistItemRow({
       >
         <span
           className={`${isCompact ? "text-sm" : "text-lg"} ${
-            item.completed ? "line-through text-slate-400" : "text-slate-900"
+            item.completed ? `line-through ${s(theme, "text-muted")}` : s(theme, "text-body")
           }`}
         >
           {item.text}
         </span>
         {subtaskCount > 0 && !isCompact && (
-          <span className={`text-xs text-slate-400 px-2 py-0.5 ${s(barebones, "badge")}`}>
+          <span className={`text-xs ${s(theme, "text-muted")} px-2 py-0.5 ${s(theme, "badge")}`}>
             {subtaskCount}
           </span>
         )}
@@ -113,17 +113,17 @@ export function ChecklistItemRow({
 
       {/* Actions — hidden in compact mode */}
       {!isCompact && (
-        <div className={`flex items-center gap-1 ${s(barebones, "hover-reveal")}`}>
+        <div className={`flex items-center gap-1 ${s(theme, "hover-reveal")}`}>
           <button
             onClick={() => onEdit(item.id)}
-            className={`h-7 w-7 flex items-center justify-center text-slate-400 hover:text-blue-500 ${s(barebones, "btn-icon")}`}
+            className={`h-7 w-7 flex items-center justify-center ${s(theme, "icon-muted")} ${s(theme, "icon-hover")} ${s(theme, "btn-icon")}`}
             aria-label="Edit item"
           >
             <Pencil className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => onDelete(item.id)}
-            className={`h-7 w-7 flex items-center justify-center text-slate-400 hover:text-red-500 ${s(barebones, "btn-icon")}`}
+            className={`h-7 w-7 flex items-center justify-center ${s(theme, "icon-muted")} hover:text-red-500 ${s(theme, "btn-icon")}`}
             aria-label="Delete item"
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -135,7 +135,7 @@ export function ChecklistItemRow({
       {!isCompact && (
         <button
           onClick={() => onDrillDown(item.id)}
-          className={`h-7 w-7 flex items-center justify-center text-slate-300 hover:text-blue-500 ${s(barebones, "btn-icon")}`}
+          className={`h-7 w-7 flex items-center justify-center ${s(theme, "text-faint")} ${s(theme, "icon-hover")} ${s(theme, "btn-icon")}`}
           aria-label="View subtasks"
         >
           <ChevronRight className="h-4 w-4" />

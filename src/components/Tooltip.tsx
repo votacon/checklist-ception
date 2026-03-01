@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { s } from "../utils/styles";
-import { useBarebones } from "../contexts/BarebonesContext";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface TooltipProps {
   text: string;
@@ -10,7 +10,7 @@ interface TooltipProps {
 }
 
 export function Tooltip({ text, shortcut, position = "bottom", children }: TooltipProps) {
-  const { barebones } = useBarebones();
+  const { theme } = useTheme();
 
   const positionClasses = position === "top"
     ? "bottom-full mb-2"
@@ -20,11 +20,11 @@ export function Tooltip({ text, shortcut, position = "bottom", children }: Toolt
     <span className="relative inline-flex group">
       {children}
       <span
-        className={`pointer-events-none absolute left-1/2 -translate-x-1/2 ${positionClasses} px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity delay-300 z-50 ${s(barebones, "tooltip")}`}
+        className={`pointer-events-none absolute left-1/2 -translate-x-1/2 ${positionClasses} px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity delay-300 z-50 ${s(theme, "tooltip")}`}
       >
         {text}
         {shortcut && (
-          <kbd className={`ml-1.5 px-1 py-0.5 text-[10px] font-mono ${s(barebones, "kbd")}`}>
+          <kbd className={`ml-1.5 px-1 py-0.5 text-[10px] font-mono ${s(theme, "kbd")}`}>
             {shortcut}
           </kbd>
         )}

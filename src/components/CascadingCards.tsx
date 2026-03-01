@@ -3,7 +3,8 @@ import { AnimatePresence, motion } from "motion/react";
 import type { CardLevel } from "../types";
 import { cardVariants, cardTransition } from "../utils/animation";
 import { CARD_LAYOUT } from "../utils/constants";
-import { useBarebones } from "../contexts/BarebonesContext";
+import { s } from "../utils/styles";
+import { useTheme } from "../contexts/ThemeContext";
 import { ChecklistCard } from "./ChecklistCard";
 
 interface CascadingCardsProps {
@@ -28,7 +29,7 @@ function getPathForLevel(levels: CardLevel[], levelIndex: number): string[] {
 }
 
 interface CardWrapperProps {
-  barebones: boolean;
+  isBarebones: boolean;
   isCollapsed: boolean;
   cardKey: string;
   zIndex: number;
@@ -36,9 +37,9 @@ interface CardWrapperProps {
   children: ReactNode;
 }
 
-function CardWrapper({ barebones, isCollapsed, cardKey, zIndex, overlapMargin, children }: CardWrapperProps) {
+function CardWrapper({ isBarebones, isCollapsed, cardKey, zIndex, overlapMargin, children }: CardWrapperProps) {
   const width = isCollapsed ? CARD_LAYOUT.COLLAPSED_WIDTH : CARD_LAYOUT.EXPANDED_WIDTH;
-  if (barebones) {
+  if (isBarebones) {
     return <div key={cardKey} className={`shrink-0 ${width} relative ${overlapMargin}`} style={{ zIndex }}>{children}</div>;
   }
   return (
@@ -68,17 +69,17 @@ export function CascadingCards({
   onReorder,
 }: CascadingCardsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { barebones } = useBarebones();
+  const { theme, isBarebones } = useTheme();
 
   // Auto-scroll to rightmost card when levels change
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
         left: scrollRef.current.scrollWidth,
-        behavior: barebones ? "instant" : "smooth",
+        behavior: isBarebones ? "instant" : "smooth",
       });
     }
-  }, [levels.length, barebones]);
+  }, [levels.length, isBarebones]);
 
   const cards = levels.map((level, index) => {
     const isLastCard = index === levels.length - 1;
@@ -92,13 +93,13 @@ export function CascadingCards({
         : "-ml-6";
 
     return (
-      <CardWrapper key={cardKey} cardKey={cardKey} barebones={barebones} isCollapsed={isCollapsed} zIndex={index} overlapMargin={overlapMargin}>
+      <CardWrapper key={cardKey} cardKey={cardKey} isBarebones={isBarebones} isCollapsed={isCollapsed} zIndex={index} overlapMargin={overlapMargin}>
         <div className="px-1 pb-2">
           <h3
             className={`font-semibold truncate ${
               isLastCard
-                ? "text-slate-900 text-sm"
-                : "text-slate-500 text-xs"
+                ? `${s(theme, "card-title")} text-sm`
+                : `${s(theme, "card-title-muted")} text-xs`
             }`}
           >
             {level.title}
@@ -124,7 +125,7 @@ export function CascadingCards({
       ref={scrollRef}
       className="flex overflow-x-auto pb-4 scrollbar-thin"
     >
-      {barebones ? cards : <AnimatePresence mode="popLayout">{cards}</AnimatePresence>}
+      {isBarebones ? cards : <AnimatePresence mode="popLayout">{cards}</AnimatePresence>}
     </div>
   );
 }
