@@ -1,4 +1,6 @@
-import { Check, ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { Check, ChevronRight, GripVertical, Pencil, Trash2 } from "lucide-react";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import type { ChecklistItem as ChecklistItemType } from "../types";
 import { s } from "../utils/styles";
 import { useBarebones } from "../contexts/BarebonesContext";
@@ -25,14 +27,44 @@ export function ChecklistItemRow({
   const subtaskCount = item.subtasks.length;
   const { barebones } = useBarebones();
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   return (
     <div
+      ref={setNodeRef}
+      style={style}
       className={`group flex items-center gap-2 ${s(barebones, "row")} ${
         isActive
-          ? "border-l-3 border-blue-500 bg-blue-50"
+          ? "border-l-3 border-blue-500 bg-blue-100"
           : s(barebones, "row-hover")
-      } ${isCompact ? "min-h-[36px] px-2 py-1" : "min-h-[44px] px-3 py-2"}`}
+      } ${isCompact ? "min-h-[36px] px-2 py-1" : "min-h-[44px] px-3 py-2"} ${
+        isDragging ? "opacity-50 z-50" : ""
+      }`}
     >
+      {/* Drag handle */}
+      {!isCompact && (
+        <button
+          {...attributes}
+          {...listeners}
+          className={`flex items-center justify-center min-h-[44px] min-w-[28px] text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing ${s(barebones, "hover-reveal")}`}
+          aria-label="Drag to reorder"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+      )}
+
       {/* Checkbox */}
       <button
         onClick={() => onToggle(item.id)}

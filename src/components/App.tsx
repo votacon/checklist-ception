@@ -31,6 +31,7 @@ function ChecklistView({ checklist, onItemsChange }: ChecklistViewProps) {
     cancelEdit,
     drillDown,
     navigateToDepth,
+    reorderItems,
     navigateToRoot,
     exportData,
     importData,
@@ -65,6 +66,7 @@ function ChecklistView({ checklist, onItemsChange }: ChecklistViewProps) {
           onDelete={deleteItem}
           onEdit={startEdit}
           onDrillDown={drillDown}
+          onReorder={reorderItems}
         />
       </div>
 

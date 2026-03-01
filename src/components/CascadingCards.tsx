@@ -13,6 +13,7 @@ interface CascadingCardsProps {
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
   onDrillDown: (id: string) => void;
+  onReorder: (path: string[], fromIndex: number, toIndex: number) => void;
 }
 
 function getPathForLevel(levels: CardLevel[], levelIndex: number): string[] {
@@ -61,6 +62,7 @@ export function CascadingCards({
   onDelete,
   onEdit,
   onDrillDown,
+  onReorder,
 }: CascadingCardsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { barebones } = useBarebones();
@@ -103,6 +105,7 @@ export function CascadingCards({
           onDrillDown={onDrillDown}
           activeChildId={level.activeChildId}
           isCollapsed={isCollapsed}
+          onReorder={(from, to) => onReorder(path, from, to)}
         />
       </CardWrapper>
     );

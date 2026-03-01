@@ -26,7 +26,7 @@ export function AddItemForm({ onAdd }: AddItemFormProps) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Add a new item..."
-        className={`flex-1 min-h-[44px] px-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${s(barebones, "input")}`}
+        className={`flex-1 min-h-[44px] px-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-transparent ${s(barebones, "input")}`}
       />
       <button
         type="submit"

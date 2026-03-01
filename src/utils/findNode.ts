@@ -79,6 +79,28 @@ export function getAllLevels(
   return levels;
 }
 
+export function reorderChildrenAtPath(
+  items: ChecklistItem[],
+  path: string[],
+  fromIndex: number,
+  toIndex: number,
+): ChecklistItem[] {
+  if (path.length === 0) {
+    const reordered = [...items];
+    const [moved] = reordered.splice(fromIndex, 1);
+    reordered.splice(toIndex, 0, moved);
+    return reordered;
+  }
+
+  const parentId = path[path.length - 1];
+  return updateNodeById(items, parentId, (node) => {
+    const reordered = [...node.subtasks];
+    const [moved] = reordered.splice(fromIndex, 1);
+    reordered.splice(toIndex, 0, moved);
+    return { ...node, subtasks: reordered };
+  });
+}
+
 export function getBreadcrumbPath(
   items: ChecklistItem[],
   navStack: string[],

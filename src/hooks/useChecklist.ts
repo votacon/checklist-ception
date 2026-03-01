@@ -4,6 +4,7 @@ import {
   findNodeById,
   updateNodeById,
   deleteNodeById,
+  reorderChildrenAtPath,
   getBreadcrumbPath,
   getAllLevels,
 } from "../utils/findNode";
@@ -130,6 +131,13 @@ export function useChecklist({
     setEditingItem(null);
   }, []);
 
+  const reorderItems = useCallback(
+    (path: string[], fromIndex: number, toIndex: number) => {
+      setRootItems((prev) => reorderChildrenAtPath(prev, path, fromIndex, toIndex));
+    },
+    [],
+  );
+
   // Export / Import
   const exportData = useCallback(() => {
     downloadJson(rootItems);
@@ -162,6 +170,7 @@ export function useChecklist({
     cancelEdit,
     drillDown,
     navigateToDepth,
+    reorderItems,
     navigateToRoot: resetNavigation,
     exportData,
     importData,
