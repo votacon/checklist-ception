@@ -49,7 +49,7 @@ export function ChecklistItemRow({
         isActive
           ? "border-l-3 border-blue-500 bg-blue-100"
           : s(barebones, "row-hover")
-      } ${isCompact ? "min-h-[32px] px-2 py-1" : "min-h-[36px] px-2 py-1.5"} ${
+      } ${isCompact ? "min-h-[32px] px-2 py-1" : "min-h-[40px] px-3 py-2"} ${
         isDragging ? "opacity-50 z-50" : ""
       }`}
     >
@@ -98,9 +98,9 @@ export function ChecklistItemRow({
         }`}
       >
         <span
-          className={`${isCompact ? "text-sm" : "text-base"} ${
+          className={`${isCompact ? "text-sm" : "text-lg"} ${
             item.completed ? "line-through text-slate-400" : "text-slate-900"
-          } truncate`}
+          }`}
         >
           {item.text}
         </span>

@@ -101,6 +101,14 @@ export function reorderChildrenAtPath(
   });
 }
 
+export function uncheckAll(items: ChecklistItem[]): ChecklistItem[] {
+  return items.map((item) => ({
+    ...item,
+    completed: false,
+    subtasks: uncheckAll(item.subtasks),
+  }));
+}
+
 export function getBreadcrumbPath(
   items: ChecklistItem[],
   navStack: string[],

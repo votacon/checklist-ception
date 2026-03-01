@@ -31,13 +31,15 @@ interface CardWrapperProps {
   barebones: boolean;
   isCollapsed: boolean;
   cardKey: string;
+  zIndex: number;
+  overlapMargin: string;
   children: ReactNode;
 }
 
-function CardWrapper({ barebones, isCollapsed, cardKey, children }: CardWrapperProps) {
+function CardWrapper({ barebones, isCollapsed, cardKey, zIndex, overlapMargin, children }: CardWrapperProps) {
   const width = isCollapsed ? CARD_LAYOUT.COLLAPSED_WIDTH : CARD_LAYOUT.EXPANDED_WIDTH;
   if (barebones) {
-    return <div key={cardKey} className={`shrink-0 ${width}`}>{children}</div>;
+    return <div key={cardKey} className={`shrink-0 ${width} relative ${overlapMargin}`} style={{ zIndex }}>{children}</div>;
   }
   return (
     <motion.div
@@ -48,7 +50,8 @@ function CardWrapper({ barebones, isCollapsed, cardKey, children }: CardWrapperP
       animate="center"
       exit="exit"
       transition={cardTransition}
-      className={`shrink-0 ${width}`}
+      className={`shrink-0 ${width} relative ${overlapMargin}`}
+      style={{ zIndex }}
     >
       {children}
     </motion.div>
@@ -82,9 +85,14 @@ export function CascadingCards({
     const isCollapsed = levels.length > CARD_LAYOUT.COLLAPSE_THRESHOLD && index < levels.length - 2;
     const path = getPathForLevel(levels, index);
     const cardKey = level.parentId ?? "root";
+    const overlapMargin = index === 0
+      ? ""
+      : levels.length <= 2
+        ? "ml-[2%]"
+        : "-ml-6";
 
     return (
-      <CardWrapper key={cardKey} cardKey={cardKey} barebones={barebones} isCollapsed={isCollapsed}>
+      <CardWrapper key={cardKey} cardKey={cardKey} barebones={barebones} isCollapsed={isCollapsed} zIndex={index} overlapMargin={overlapMargin}>
         <div className="px-1 pb-2">
           <h3
             className={`font-semibold truncate ${
@@ -114,7 +122,7 @@ export function CascadingCards({
   return (
     <div
       ref={scrollRef}
-      className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin"
+      className="flex overflow-x-auto pb-4 scrollbar-thin"
     >
       {barebones ? cards : <AnimatePresence mode="popLayout">{cards}</AnimatePresence>}
     </div>

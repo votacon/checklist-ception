@@ -7,6 +7,7 @@ import {
   reorderChildrenAtPath,
   getBreadcrumbPath,
   getAllLevels,
+  uncheckAll,
 } from "../utils/findNode";
 import { downloadJson, parseImportedJson } from "../utils/exportImport";
 import { useNavigation } from "./useNavigation";
@@ -131,6 +132,10 @@ export function useChecklist({
     setEditingItem(null);
   }, []);
 
+  const resetChecks = useCallback(() => {
+    setRootItems((prev) => uncheckAll(prev));
+  }, []);
+
   const reorderItems = useCallback(
     (path: string[], fromIndex: number, toIndex: number) => {
       setRootItems((prev) => reorderChildrenAtPath(prev, path, fromIndex, toIndex));
@@ -171,6 +176,7 @@ export function useChecklist({
     drillDown,
     navigateToDepth,
     reorderItems,
+    resetChecks,
     navigateToRoot: resetNavigation,
     exportData,
     importData,

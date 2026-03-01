@@ -5,8 +5,8 @@ export const STORAGE_KEYS = {
 } as const;
 
 export const CARD_LAYOUT = {
-  COLLAPSED_WIDTH: "w-48",
-  EXPANDED_WIDTH: "w-80",
+  COLLAPSED_WIDTH: "w-32",
+  EXPANDED_WIDTH: "w-[48%]",
   COLLAPSE_THRESHOLD: 3,
 } as const;
 

@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Download, Upload } from "lucide-react";
+import { Download, Upload, RotateCcw } from "lucide-react";
 import { s } from "../utils/styles";
 import { useBarebones } from "../contexts/BarebonesContext";
 import { Tooltip } from "./Tooltip";
@@ -7,9 +7,10 @@ import { Tooltip } from "./Tooltip";
 interface ExportImportBarProps {
   onExport: () => void;
   onImport: (text: string) => boolean;
+  onResetChecks: () => void;
 }
 
-export function ExportImportBar({ onExport, onImport }: ExportImportBarProps) {
+export function ExportImportBar({ onExport, onImport, onResetChecks }: ExportImportBarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { barebones } = useBarebones();
 
@@ -51,6 +52,12 @@ export function ExportImportBar({ onExport, onImport }: ExportImportBarProps) {
         <button onClick={handleImportClick} className={buttonClass}>
           <Upload className="h-4 w-4" />
           Import
+        </button>
+      </Tooltip>
+      <Tooltip text="Untick all checkboxes">
+        <button onClick={onResetChecks} className={buttonClass}>
+          <RotateCcw className="h-4 w-4" />
+          Reset
         </button>
       </Tooltip>
       <input

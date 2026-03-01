@@ -44,6 +44,7 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
       drillDown,
       navigateToDepth,
       reorderItems,
+      resetChecks,
       navigateToRoot,
       exportData,
       importData,
@@ -67,7 +68,7 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
       <>
         {/* Export/Import bar */}
         <div className="max-w-lg mx-auto px-4">
-          <ExportImportBar onExport={exportData} onImport={importData} />
+          <ExportImportBar onExport={exportData} onImport={importData} onResetChecks={resetChecks} />
         </div>
 
         {/* Breadcrumbs */}
