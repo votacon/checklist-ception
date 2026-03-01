@@ -21,3 +21,11 @@ export const cardTransition = {
   stiffness: 300,
   damping: 30,
 };
+
+export const sidebarTransition = {
+  type: "spring" as const,
+  stiffness: 400,
+  damping: 35,
+};
+
+export const backdropTransition = { duration: 0.2 };

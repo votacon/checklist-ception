@@ -1,5 +1,6 @@
 import { Check, ChevronRight, Pencil, Trash2 } from "lucide-react";
 import type { ChecklistItem as ChecklistItemType } from "../types";
+import { s } from "../utils/styles";
 import { useBarebones } from "../contexts/BarebonesContext";
 
 interface ChecklistItemProps {
@@ -26,12 +27,10 @@ export function ChecklistItemRow({
 
   return (
     <div
-      className={`group flex items-center gap-2 ${
-        barebones ? "" : "rounded-xl transition-colors"
-      } ${
+      className={`group flex items-center gap-2 ${s(barebones, "row")} ${
         isActive
           ? "border-l-3 border-blue-500 bg-blue-50"
-          : barebones ? "" : "hover:bg-slate-50"
+          : s(barebones, "row-hover")
       } ${isCompact ? "min-h-[36px] px-2 py-1" : "min-h-[44px] px-3 py-2"}`}
     >
       {/* Checkbox */}
@@ -45,9 +44,7 @@ export function ChecklistItemRow({
         aria-label={item.completed ? "Mark incomplete" : "Mark complete"}
       >
         <div
-          className={`border-2 flex items-center justify-center ${
-            barebones ? "" : "rounded-lg transition-colors"
-          } ${
+          className={`border-2 flex items-center justify-center ${s(barebones, "checkbox")} ${
             isCompact ? "h-5 w-5" : "h-6 w-6"
           } ${
             item.completed
@@ -76,11 +73,7 @@ export function ChecklistItemRow({
           {item.text}
         </span>
         {subtaskCount > 0 && !isCompact && (
-          <span className={`text-xs text-slate-400 px-2 py-0.5 ${
-            barebones
-              ? "border border-gray-400"
-              : "rounded-full bg-slate-100"
-          }`}>
+          <span className={`text-xs text-slate-400 px-2 py-0.5 ${s(barebones, "badge")}`}>
             {subtaskCount}
           </span>
         )}
@@ -88,19 +81,17 @@ export function ChecklistItemRow({
 
       {/* Actions — hidden in compact mode */}
       {!isCompact && (
-        <div className={`flex items-center gap-1 ${
-          barebones ? "" : "opacity-0 group-hover:opacity-100 transition-opacity"
-        }`}>
+        <div className={`flex items-center gap-1 ${s(barebones, "hover-reveal")}`}>
           <button
             onClick={() => onEdit(item.id)}
-            className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-blue-500 ${barebones ? "" : "transition-colors"}`}
+            className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-blue-500 ${s(barebones, "btn-icon")}`}
             aria-label="Edit item"
           >
             <Pencil className="h-4 w-4" />
           </button>
           <button
             onClick={() => onDelete(item.id)}
-            className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-red-500 ${barebones ? "" : "transition-colors"}`}
+            className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-red-500 ${s(barebones, "btn-icon")}`}
             aria-label="Delete item"
           >
             <Trash2 className="h-4 w-4" />
@@ -112,7 +103,7 @@ export function ChecklistItemRow({
       {!isCompact && (
         <button
           onClick={() => onDrillDown(item.id)}
-          className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-300 hover:text-blue-500 ${barebones ? "" : "transition-colors"}`}
+          className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-300 hover:text-blue-500 ${s(barebones, "btn-icon")}`}
           aria-label="View subtasks"
         >
           <ChevronRight className="h-5 w-5" />

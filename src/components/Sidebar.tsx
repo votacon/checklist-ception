@@ -1,8 +1,11 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { X, Plus, PanelLeftClose } from "lucide-react";
+import { X, PanelLeftClose } from "lucide-react";
 import type { Checklist } from "../types";
+import { sidebarTransition, backdropTransition } from "../utils/animation";
+import { s } from "../utils/styles";
 import { useBarebones } from "../contexts/BarebonesContext";
+import { SidebarCreateForm } from "./SidebarCreateForm";
 import { SidebarItem } from "./SidebarItem";
 
 interface SidebarProps {
@@ -30,9 +33,6 @@ export function Sidebar({
   onRename,
   onDelete,
 }: SidebarProps) {
-  const [isCreating, setIsCreating] = useState(false);
-  const [newTitle, setNewTitle] = useState("");
-  const newTitleInputRef = useRef<HTMLInputElement>(null);
   const { barebones } = useBarebones();
 
   // Escape key closes/collapses sidebar
@@ -51,30 +51,6 @@ export function Sidebar({
     }
   }, [isOpen, isCollapsed, isDesktop, handleKeyDown]);
 
-  useEffect(() => {
-    if (isCreating) {
-      newTitleInputRef.current?.focus();
-    }
-  }, [isCreating]);
-
-  const handleCreate = () => {
-    const trimmed = newTitle.trim();
-    if (trimmed) {
-      onCreate(trimmed);
-      setNewTitle("");
-      setIsCreating(false);
-    }
-  };
-
-  const handleCreateKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleCreate();
-    } else if (e.key === "Escape") {
-      setIsCreating(false);
-      setNewTitle("");
-    }
-  };
-
   const handleSwitch = (id: string) => {
     onSwitch(id);
     if (!isDesktop) onClose();
@@ -83,11 +59,11 @@ export function Sidebar({
   const panelContent = (
     <>
       {/* Header */}
-      <div className={`flex items-center justify-between px-4 py-4 border-b ${barebones ? "border-gray-400" : "border-slate-200"}`}>
+      <div className={`flex items-center justify-between px-4 py-4 border-b ${s(barebones, "border-subtle")}`}>
         <h2 className="text-lg font-bold text-slate-900">Checklists</h2>
         <button
           onClick={onClose}
-          className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-slate-600 ${barebones ? "" : "transition-colors"}`}
+          className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-slate-600 ${s(barebones, "btn-icon")}`}
           aria-label={isDesktop ? "Collapse sidebar" : "Close sidebar"}
         >
           {isDesktop ? (
@@ -114,42 +90,8 @@ export function Sidebar({
       </div>
 
       {/* New checklist */}
-      <div className={`px-3 py-3 border-t ${barebones ? "border-gray-400" : "border-slate-200"}`}>
-        {isCreating ? (
-          <div className="flex items-center gap-2">
-            <input
-              ref={newTitleInputRef}
-              type="text"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              onBlur={() => {
-                if (!newTitle.trim()) {
-                  setIsCreating(false);
-                  setNewTitle("");
-                }
-              }}
-              onKeyDown={handleCreateKeyDown}
-              placeholder="Checklist name…"
-              className={`flex-1 min-w-0 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 ${
-                barebones
-                  ? "border-2 border-gray-400 bg-white"
-                  : "rounded-xl border border-slate-200"
-              }`}
-            />
-          </div>
-        ) : (
-          <button
-            onClick={() => setIsCreating(true)}
-            className={`w-full min-h-[44px] flex items-center justify-center gap-2 text-sm font-medium text-blue-600 ${
-              barebones
-                ? "border-2 border-gray-400 hover:bg-blue-50"
-                : "rounded-xl hover:bg-blue-50 transition-colors"
-            }`}
-          >
-            <Plus className="h-4 w-4" />
-            New Checklist
-          </button>
-        )}
+      <div className={`px-3 py-3 border-t ${s(barebones, "border-subtle")}`}>
+        <SidebarCreateForm onCreate={onCreate} />
       </div>
     </>
   );
@@ -159,9 +101,7 @@ export function Sidebar({
     if (isCollapsed) return null;
     return (
       <aside
-        className={`w-72 shrink-0 bg-white flex flex-col h-screen sticky top-0 ${
-          barebones ? "border-r-2 border-gray-400" : "border-r border-slate-200"
-        }`}
+        className={`w-72 shrink-0 bg-white flex flex-col h-screen sticky top-0 ${s(barebones, "sidebar-border")}`}
       >
         {panelContent}
       </aside>
@@ -192,7 +132,7 @@ export function Sidebar({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={backdropTransition}
             className="fixed inset-0 bg-black/40 z-40"
             onClick={onClose}
           />
@@ -200,7 +140,7 @@ export function Sidebar({
             initial={{ x: "-100%" }}
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
-            transition={{ type: "spring", stiffness: 400, damping: 35 }}
+            transition={sidebarTransition}
             className="fixed inset-y-0 left-0 w-72 max-w-[80vw] bg-white shadow-xl z-50 flex flex-col"
           >
             {panelContent}

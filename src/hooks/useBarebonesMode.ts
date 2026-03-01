@@ -1,10 +1,9 @@
 import { useState, useCallback } from "react";
-
-const STORAGE_KEY = "checklist-ception-barebones";
+import { STORAGE_KEYS } from "../utils/constants";
 
 function loadBarebones(): boolean {
   try {
-    return localStorage.getItem(STORAGE_KEY) === "true";
+    return localStorage.getItem(STORAGE_KEYS.BAREBONES) === "true";
   } catch {
     return false;
   }
@@ -17,7 +16,7 @@ export function useBarebonesMode() {
     setBarebones((prev) => {
       const next = !prev;
       try {
-        localStorage.setItem(STORAGE_KEY, String(next));
+        localStorage.setItem(STORAGE_KEYS.BAREBONES, String(next));
       } catch {
         // Storage unavailable — continue with in-memory state
       }

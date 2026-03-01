@@ -11,10 +11,6 @@ export function useNavigation() {
     setNavStack((prev) => prev.slice(0, depth));
   }, []);
 
-  const navigateToRoot = useCallback(() => {
-    setNavStack([]);
-  }, []);
-
   const resetNavigation = useCallback(() => {
     setNavStack([]);
   }, []);
@@ -24,7 +20,6 @@ export function useNavigation() {
     setNavStack,
     drillDown,
     navigateToDepth,
-    navigateToRoot,
     resetNavigation,
   };
 }

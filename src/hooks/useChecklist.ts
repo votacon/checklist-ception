@@ -30,7 +30,6 @@ export function useChecklist({
     setNavStack,
     drillDown,
     navigateToDepth,
-    navigateToRoot,
     resetNavigation,
   } = useNavigation();
 
@@ -163,7 +162,7 @@ export function useChecklist({
     cancelEdit,
     drillDown,
     navigateToDepth,
-    navigateToRoot,
+    navigateToRoot: resetNavigation,
     exportData,
     importData,
   };

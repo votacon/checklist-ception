@@ -1,8 +1,6 @@
 import type { AppState, Checklist } from "../types";
+import { STORAGE_KEYS } from "./constants";
 import { isValidData } from "./validation";
-
-const APP_STATE_KEY = "checklist-ception-app-state";
-const LEGACY_KEY = "checklist-ception-data";
 
 function createEmptyChecklist(title = "My Checklist"): Checklist {
   return {
@@ -38,14 +36,14 @@ function isValidAppState(value: unknown): value is AppState {
 export function loadAppState(): AppState {
   try {
     // Try new key first
-    const raw = localStorage.getItem(APP_STATE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEYS.APP_STATE);
     if (raw) {
       const parsed: unknown = JSON.parse(raw);
       if (isValidAppState(parsed)) return parsed;
     }
 
     // Try migrating legacy data
-    const legacyRaw = localStorage.getItem(LEGACY_KEY);
+    const legacyRaw = localStorage.getItem(STORAGE_KEYS.LEGACY_DATA);
     if (legacyRaw) {
       const legacyParsed: unknown = JSON.parse(legacyRaw);
       if (isValidData(legacyParsed)) {
@@ -56,7 +54,7 @@ export function loadAppState(): AppState {
           activeChecklistId: checklist.id,
         };
         saveAppState(state);
-        localStorage.removeItem(LEGACY_KEY);
+        localStorage.removeItem(STORAGE_KEYS.LEGACY_DATA);
         return state;
       }
     }
@@ -74,7 +72,7 @@ export function loadAppState(): AppState {
 
 export function saveAppState(state: AppState): void {
   try {
-    localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
+    localStorage.setItem(STORAGE_KEYS.APP_STATE, JSON.stringify(state));
   } catch {
     // Storage full or unavailable — silently fail
   }

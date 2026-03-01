@@ -1,4 +1,5 @@
 import type { ChecklistItem } from "../types";
+import { s } from "../utils/styles";
 import { useBarebones } from "../contexts/BarebonesContext";
 import { AddItemForm } from "./AddItemForm";
 import { ChecklistItemRow } from "./ChecklistItemRow";
@@ -28,11 +29,7 @@ export function ChecklistCard({
   const { barebones } = useBarebones();
 
   return (
-    <div className={`bg-white p-4 space-y-3 ${
-      barebones
-        ? "border-2 border-gray-400"
-        : "rounded-2xl shadow-sm border border-slate-200"
-    }`}>
+    <div className={`bg-white p-4 space-y-3 ${s(barebones, "card")}`}>
       {!isCollapsed && <AddItemForm onAdd={onAdd} />}
       <div className="divide-y divide-slate-100">
         {items.length === 0 ? (

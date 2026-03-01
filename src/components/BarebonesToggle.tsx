@@ -1,4 +1,5 @@
 import { Zap, ZapOff } from "lucide-react";
+import { s } from "../utils/styles";
 import { useBarebones } from "../contexts/BarebonesContext";
 
 export function BarebonesToggle() {
@@ -7,11 +8,7 @@ export function BarebonesToggle() {
   return (
     <button
       onClick={toggle}
-      className={`min-h-[44px] min-w-[44px] flex items-center justify-center ${
-        barebones
-          ? "border-2 border-gray-400 text-gray-600"
-          : "rounded-xl text-slate-500 hover:text-slate-700 transition-colors"
-      }`}
+      className={`min-h-[44px] min-w-[44px] flex items-center justify-center ${s(barebones, "barebones-toggle")}`}
       aria-label={barebones ? "Switch to fancy mode" : "Switch to barebones mode"}
       title={barebones ? "Fancy mode" : "Barebones mode"}
     >

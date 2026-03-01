@@ -1,17 +1,16 @@
 import { useState, useCallback, useEffect } from "react";
-
-const DESKTOP_QUERY = "(min-width: 1024px)";
+import { BREAKPOINTS } from "../utils/constants";
 
 export function useSidebar() {
   const [isOpen, setIsOpen] = useState(false); // mobile overlay
   const [isCollapsed, setIsCollapsed] = useState(false); // desktop panel
   const [isDesktop, setIsDesktop] = useState(
-    () => window.matchMedia(DESKTOP_QUERY).matches,
+    () => window.matchMedia(BREAKPOINTS.DESKTOP).matches,
   );
 
   // Track viewport size changes
   useEffect(() => {
-    const mq = window.matchMedia(DESKTOP_QUERY);
+    const mq = window.matchMedia(BREAKPOINTS.DESKTOP);
     const handler = (e: MediaQueryListEvent) => {
       setIsDesktop(e.matches);
       if (e.matches) setIsOpen(false); // close mobile overlay when switching to desktop

@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { Download, Upload } from "lucide-react";
+import { s } from "../utils/styles";
 import { useBarebones } from "../contexts/BarebonesContext";
 
 interface ExportImportBarProps {
@@ -35,11 +36,7 @@ export function ExportImportBar({ onExport, onImport }: ExportImportBarProps) {
     e.target.value = "";
   };
 
-  const buttonClass = `min-h-[44px] px-4 flex items-center gap-2 text-slate-600 text-sm ${
-    barebones
-      ? "border-2 border-gray-400"
-      : "rounded-xl border border-slate-200 hover:bg-white hover:border-slate-300 transition-colors"
-  }`;
+  const buttonClass = `min-h-[44px] px-4 flex items-center gap-2 text-slate-600 text-sm ${s(barebones, "btn-export")}`;
 
   return (
     <div className="flex gap-2">
