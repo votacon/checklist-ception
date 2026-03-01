@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import type { AppState, Checklist, ChecklistItem } from "../types";
 import { loadAppState, saveAppState } from "../utils/storage";
+import { downloadAllJson } from "../utils/exportImport";
 
 function persist(state: AppState): void {
   saveAppState(state);
@@ -83,6 +84,27 @@ export function useChecklistManager() {
     });
   }, []);
 
+  const exportAll = useCallback(() => {
+    downloadAllJson(state.checklists);
+  }, [state.checklists]);
+
+  const importChecklist = useCallback((title: string, items: ChecklistItem[]) => {
+    const newChecklist: Checklist = {
+      id: crypto.randomUUID(),
+      title,
+      items,
+      createdAt: Date.now(),
+    };
+    setState((prev) => {
+      const next: AppState = {
+        checklists: [...prev.checklists, newChecklist],
+        activeChecklistId: newChecklist.id,
+      };
+      persist(next);
+      return next;
+    });
+  }, []);
+
   return {
     checklists: state.checklists,
     activeChecklist,
@@ -91,5 +113,7 @@ export function useChecklistManager() {
     renameChecklist,
     deleteChecklist,
     updateActiveItems,
+    exportAll,
+    importChecklist,
   };
 }

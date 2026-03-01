@@ -6,6 +6,7 @@ import { useSidebar } from "../hooks/useSidebar";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 import { BarebonesContext, useBarebones } from "../contexts/BarebonesContext";
 import type { Checklist, ChecklistItem } from "../types";
+import { parseImportedJson, parseImportedBundleJson } from "../utils/exportImport";
 import { BarebonesToggle } from "./BarebonesToggle";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { CascadingCards } from "./CascadingCards";
@@ -26,10 +27,12 @@ export interface ChecklistViewHandle {
 interface ChecklistViewProps {
   checklist: Checklist;
   onItemsChange: (items: ChecklistItem[]) => void;
+  onExportAll: () => void;
+  onImportChecklist: (fileName: string, text: string) => boolean;
 }
 
 const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
-  function ChecklistView({ checklist, onItemsChange }, ref) {
+  function ChecklistView({ checklist, onItemsChange, onExportAll, onImportChecklist }, ref) {
     const {
       editingItem,
       navStack,
@@ -47,7 +50,6 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
       resetChecks,
       navigateToRoot,
       exportData,
-      importData,
     } = useChecklist({
       initialItems: checklist.items,
       onItemsChange,
@@ -68,7 +70,7 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
       <>
         {/* Export/Import bar */}
         <div className="max-w-lg px-4">
-          <ExportImportBar onExport={exportData} onImport={importData} onResetChecks={resetChecks} />
+          <ExportImportBar onExport={exportData} onExportAll={onExportAll} onImport={onImportChecklist} onResetChecks={resetChecks} />
         </div>
 
         {/* Breadcrumbs */}
@@ -154,6 +156,25 @@ function AppContent({
     setShowHelp((prev) => !prev);
   }, []);
 
+  const handleImportChecklist = useCallback((fileName: string, text: string): boolean => {
+    // Try multi-checklist bundle format first
+    const bundle = parseImportedBundleJson(text);
+    if (bundle) {
+      for (const entry of bundle) {
+        manager.importChecklist(entry.title, entry.items);
+      }
+      return true;
+    }
+    // Fall back to single checklist format
+    const parsed = parseImportedJson(text);
+    if (parsed) {
+      const title = fileName.replace(/\.json$/i, "");
+      manager.importChecklist(title, parsed);
+      return true;
+    }
+    return false;
+  }, [manager]);
+
   useKeyboardShortcuts({
     onFocusAddItem: handleFocusAddItem,
     onNewChecklist: handleNewChecklist,
@@ -204,6 +225,8 @@ function AppContent({
             key={manager.activeChecklist.id}
             checklist={manager.activeChecklist}
             onItemsChange={manager.updateActiveItems}
+            onExportAll={manager.exportAll}
+            onImportChecklist={handleImportChecklist}
           />
         </div>
       </div>

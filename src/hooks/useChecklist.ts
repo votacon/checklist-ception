@@ -9,7 +9,7 @@ import {
   getAllLevels,
   uncheckAll,
 } from "../utils/findNode";
-import { downloadJson, parseImportedJson } from "../utils/exportImport";
+import { downloadJson } from "../utils/exportImport";
 import { useNavigation } from "./useNavigation";
 
 interface UseChecklistParams {
@@ -148,19 +148,6 @@ export function useChecklist({
     downloadJson(rootItems);
   }, [rootItems]);
 
-  const importData = useCallback(
-    (text: string): boolean => {
-      const parsed = parseImportedJson(text);
-      if (parsed) {
-        setRootItems(parsed);
-        resetNavigation();
-        return true;
-      }
-      return false;
-    },
-    [resetNavigation],
-  );
-
   return {
     rootItems,
     navStack,
@@ -179,6 +166,5 @@ export function useChecklist({
     resetChecks,
     navigateToRoot: resetNavigation,
     exportData,
-    importData,
   };
 }
