@@ -45,11 +45,11 @@ export function ChecklistItemRow({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group flex items-center gap-2 ${s(barebones, "row")} ${
+      className={`group flex items-center gap-1.5 overflow-hidden ${s(barebones, "row")} ${
         isActive
           ? "border-l-3 border-blue-500 bg-blue-100"
           : s(barebones, "row-hover")
-      } ${isCompact ? "min-h-[36px] px-2 py-1" : "min-h-[44px] px-3 py-2"} ${
+      } ${isCompact ? "min-h-[32px] px-2 py-1" : "min-h-[36px] px-2 py-1.5"} ${
         isDragging ? "opacity-50 z-50" : ""
       }`}
     >
@@ -58,7 +58,7 @@ export function ChecklistItemRow({
         <button
           {...attributes}
           {...listeners}
-          className={`flex items-center justify-center min-h-[44px] min-w-[28px] text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing ${s(barebones, "hover-reveal")}`}
+          className={`flex items-center justify-center h-8 w-6 text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing ${s(barebones, "hover-reveal")}`}
           aria-label="Drag to reorder"
         >
           <GripVertical className="h-4 w-4" />
@@ -68,10 +68,10 @@ export function ChecklistItemRow({
       {/* Checkbox */}
       <button
         onClick={() => onToggle(item.id)}
-        className={`flex items-center justify-center ${
+        className={`flex items-center justify-center shrink-0 ${
           isCompact
-            ? "min-h-[36px] min-w-[36px]"
-            : "min-h-[44px] min-w-[44px]"
+            ? "h-7 w-7"
+            : "h-8 w-8"
         }`}
         aria-label={item.completed ? "Mark incomplete" : "Mark complete"}
       >
@@ -93,8 +93,8 @@ export function ChecklistItemRow({
       {/* Text — click to drill down */}
       <button
         onClick={() => onDrillDown(item.id)}
-        className={`flex-1 text-left flex items-center gap-2 ${
-          isCompact ? "min-h-[36px]" : "min-h-[44px]"
+        className={`flex-1 min-w-0 text-left flex items-center gap-2 ${
+          isCompact ? "min-h-[32px]" : "min-h-[36px]"
         }`}
       >
         <span
@@ -116,17 +116,17 @@ export function ChecklistItemRow({
         <div className={`flex items-center gap-1 ${s(barebones, "hover-reveal")}`}>
           <button
             onClick={() => onEdit(item.id)}
-            className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-blue-500 ${s(barebones, "btn-icon")}`}
+            className={`h-7 w-7 flex items-center justify-center text-slate-400 hover:text-blue-500 ${s(barebones, "btn-icon")}`}
             aria-label="Edit item"
           >
-            <Pencil className="h-4 w-4" />
+            <Pencil className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => onDelete(item.id)}
-            className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-red-500 ${s(barebones, "btn-icon")}`}
+            className={`h-7 w-7 flex items-center justify-center text-slate-400 hover:text-red-500 ${s(barebones, "btn-icon")}`}
             aria-label="Delete item"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
       )}
@@ -135,10 +135,10 @@ export function ChecklistItemRow({
       {!isCompact && (
         <button
           onClick={() => onDrillDown(item.id)}
-          className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-300 hover:text-blue-500 ${s(barebones, "btn-icon")}`}
+          className={`h-7 w-7 flex items-center justify-center text-slate-300 hover:text-blue-500 ${s(barebones, "btn-icon")}`}
           aria-label="View subtasks"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4" />
         </button>
       )}
     </div>

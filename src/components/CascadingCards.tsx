@@ -12,7 +12,7 @@ interface CascadingCardsProps {
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
-  onDrillDown: (id: string) => void;
+  onDrillDown: (id: string, fromDepth?: number) => void;
   onReorder: (path: string[], fromIndex: number, toIndex: number) => void;
 }
 
@@ -102,7 +102,7 @@ export function CascadingCards({
           onToggle={onToggle}
           onDelete={onDelete}
           onEdit={onEdit}
-          onDrillDown={onDrillDown}
+          onDrillDown={(id) => onDrillDown(id, level.depth)}
           activeChildId={level.activeChildId}
           isCollapsed={isCollapsed}
           onReorder={(from, to) => onReorder(path, from, to)}
