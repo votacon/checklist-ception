@@ -13,6 +13,7 @@ import { EditItemModal } from "./EditItemModal";
 import { ExportImportBar } from "./ExportImportBar";
 import { HamburgerButton } from "./HamburgerButton";
 import { ShortcutHelpOverlay } from "./ShortcutHelpOverlay";
+import { ShortcutLegend } from "./ShortcutLegend";
 import { Sidebar } from "./Sidebar";
 import type { SidebarCreateFormHandle } from "./SidebarCreateForm";
 
@@ -210,6 +211,9 @@ function AppContent({
           />
         </div>
       </div>
+
+      {/* Shortcut legend */}
+      <ShortcutLegend />
 
       {/* Help overlay */}
       {showHelp && <ShortcutHelpOverlay onClose={() => setShowHelp(false)} />}
