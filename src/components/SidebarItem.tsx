@@ -85,7 +85,7 @@ export function SidebarItem({
         />
       ) : (
         <>
-          <span className="flex-1 min-w-0 truncate text-sm font-medium">
+          <span className="flex-1 min-w-0 text-sm font-medium break-words">
             {checklist.title}
           </span>
           {itemCount > 0 && (
