@@ -1,11 +1,11 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, type RefObject } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { X, PanelLeftClose } from "lucide-react";
 import type { Checklist } from "../types";
 import { sidebarTransition, backdropTransition } from "../utils/animation";
 import { s } from "../utils/styles";
 import { useBarebones } from "../contexts/BarebonesContext";
-import { SidebarCreateForm } from "./SidebarCreateForm";
+import { SidebarCreateForm, type SidebarCreateFormHandle } from "./SidebarCreateForm";
 import { SidebarItem } from "./SidebarItem";
 
 interface SidebarProps {
@@ -19,6 +19,7 @@ interface SidebarProps {
   onCreate: (title: string) => void;
   onRename: (id: string, title: string) => void;
   onDelete: (id: string) => void;
+  createFormRef?: RefObject<SidebarCreateFormHandle | null>;
 }
 
 export function Sidebar({
@@ -32,6 +33,7 @@ export function Sidebar({
   onCreate,
   onRename,
   onDelete,
+  createFormRef,
 }: SidebarProps) {
   const { barebones } = useBarebones();
 
@@ -91,7 +93,7 @@ export function Sidebar({
 
       {/* New checklist */}
       <div className={`px-3 py-3 border-t ${s(barebones, "border-subtle")}`}>
-        <SidebarCreateForm onCreate={onCreate} />
+        <SidebarCreateForm ref={createFormRef} onCreate={onCreate} />
       </div>
     </>
   );

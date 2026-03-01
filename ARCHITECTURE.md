@@ -87,6 +87,17 @@ useBarebonesMode() -> { barebones: boolean, toggle: () => void }
 ```
 Reads/writes a separate localStorage key (`"checklist-ception-barebones"`). Exposed to the component tree via `BarebonesContext`.
 
+### `useKeyboardShortcuts`
+Global keydown listener for single-key shortcuts (Gmail/GitHub-style):
+```
+useKeyboardShortcuts({
+  onFocusAddItem, onNewChecklist, onToggleSidebar,
+  onNavigateBack, onNavigateHome, onToggleBarebones,
+  onExport, onToggleHelp
+})
+```
+Uses a `handlersRef` pattern — the effect registers once and reads current handlers via ref to avoid re-registering on every render. Ignores events with `ctrlKey`/`metaKey`/`altKey` held, and skips all shortcuts when an `<input>`, `<textarea>`, or `contentEditable` element is focused. Shortcut definitions live in `src/utils/shortcuts.ts` (single source of truth used by both the hook and the help overlay).
+
 No external state library — React `useState` + `useMemo` is sufficient for this app.
 
 ### Persistence
@@ -116,7 +127,11 @@ App (BarebonesContext.Provider)
 │   │   │           ├── AddItemForm (hidden when collapsed)
 │   │   │           └── ChecklistItemRow[] (compact when collapsed, active highlight)
 │   │   └── EditItemModal (conditional)
+│   └── ShortcutHelpOverlay (conditional, on "?" key)
 ```
+
+### Tooltip
+A pure-CSS tooltip component wrapping any element. Shows description text and optional `<kbd>` shortcut badge on hover with 300ms delay. Used on HamburgerButton, BarebonesToggle, ExportImportBar, Breadcrumbs home button, AddItemForm, and SidebarCreateForm.
 
 ## Animation Strategy
 
@@ -152,3 +167,7 @@ In **barebones mode**:
 | Fixed overlay sidebar | Standard mobile pattern; backdrop click and Escape to close |
 | Barebones mode via Context | Separate localStorage key avoids AppState migration; Context avoids prop drilling |
 | Plain divs in barebones | Completely bypasses Motion runtime for zero animation overhead |
+| Single-key shortcuts with input guard | Gmail/GitHub-style; no modifier keys; suppressed when typing in inputs |
+| handlersRef pattern | Event listener registers once; avoids teardown/re-register on every render |
+| CSS-only tooltips | No JS state or timers; `group-hover` + `delay-300` + `opacity` transition |
+| Shortcut definitions as shared constant | Single source of truth for both the keydown handler and the help overlay |

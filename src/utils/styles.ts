@@ -16,6 +16,8 @@ const styleMap = {
   "badge":          ["border border-gray-400", "rounded-full bg-slate-100"],
   "btn-export":     ["border-2 border-gray-400", "rounded-xl border border-slate-200 hover:bg-white hover:border-slate-300 transition-colors"],
   "barebones-toggle": ["border-2 border-gray-400 text-gray-600", "rounded-xl text-slate-500 hover:text-slate-700 transition-colors"],
+  "tooltip":          ["border border-gray-400 bg-white text-gray-800", "rounded-lg bg-slate-800 text-white shadow-lg"],
+  "kbd":              ["border border-gray-400 bg-gray-100 text-gray-600", "rounded bg-slate-600 text-slate-200"],
 } as const;
 
 export function s(barebones: boolean, key: keyof typeof styleMap): string {

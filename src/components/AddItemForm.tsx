@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 import { s } from "../utils/styles";
 import { useBarebones } from "../contexts/BarebonesContext";
+import { Tooltip } from "./Tooltip";
 
 interface AddItemFormProps {
   onAdd: (text: string) => void;
@@ -26,14 +27,17 @@ export function AddItemForm({ onAdd }: AddItemFormProps) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Add a new item..."
+        data-add-item-input
         className={`flex-1 min-h-[44px] px-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-transparent ${s(barebones, "input")}`}
       />
-      <button
-        type="submit"
-        className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-white ${s(barebones, "btn-primary")}`}
-      >
-        <Plus className="h-5 w-5" />
-      </button>
+      <Tooltip text="Add item" shortcut="A">
+        <button
+          type="submit"
+          className={`min-h-[44px] min-w-[44px] flex items-center justify-center text-white ${s(barebones, "btn-primary")}`}
+        >
+          <Plus className="h-5 w-5" />
+        </button>
+      </Tooltip>
     </form>
   );
 }

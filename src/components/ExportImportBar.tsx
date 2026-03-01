@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { Download, Upload } from "lucide-react";
 import { s } from "../utils/styles";
 import { useBarebones } from "../contexts/BarebonesContext";
+import { Tooltip } from "./Tooltip";
 
 interface ExportImportBarProps {
   onExport: () => void;
@@ -40,14 +41,18 @@ export function ExportImportBar({ onExport, onImport }: ExportImportBarProps) {
 
   return (
     <div className="flex gap-2">
-      <button onClick={onExport} className={buttonClass}>
-        <Download className="h-4 w-4" />
-        Export
-      </button>
-      <button onClick={handleImportClick} className={buttonClass}>
-        <Upload className="h-4 w-4" />
-        Import
-      </button>
+      <Tooltip text="Export checklist" shortcut="E">
+        <button onClick={onExport} className={buttonClass}>
+          <Download className="h-4 w-4" />
+          Export
+        </button>
+      </Tooltip>
+      <Tooltip text="Import checklist">
+        <button onClick={handleImportClick} className={buttonClass}>
+          <Upload className="h-4 w-4" />
+          Import
+        </button>
+      </Tooltip>
       <input
         ref={fileInputRef}
         type="file"

@@ -1,5 +1,6 @@
 import { ChevronRight, Home } from "lucide-react";
 import type { BreadcrumbItem } from "../types";
+import { Tooltip } from "./Tooltip";
 
 interface BreadcrumbsProps {
   path: BreadcrumbItem[];
@@ -16,13 +17,15 @@ export function Breadcrumbs({
 
   return (
     <nav className="flex items-center gap-1 text-sm text-slate-500 overflow-x-auto pb-1">
-      <button
-        onClick={onNavigateToRoot}
-        className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-blue-500 transition-colors shrink-0"
-        aria-label="Go to root"
-      >
-        <Home className="h-4 w-4" />
-      </button>
+      <Tooltip text="Go to root" shortcut="H">
+        <button
+          onClick={onNavigateToRoot}
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center text-slate-400 hover:text-blue-500 transition-colors shrink-0"
+          aria-label="Go to root"
+        >
+          <Home className="h-4 w-4" />
+        </button>
+      </Tooltip>
 
       {path.map((crumb, index) => (
         <span key={crumb.id} className="flex items-center gap-1 shrink-0">

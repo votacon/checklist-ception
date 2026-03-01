@@ -49,6 +49,21 @@ Open http://localhost:5173 in your browser.
 13. **Import** — click Import to load a previously exported JSON file
 14. **Toggle barebones mode** — click the Zap icon (top-right) to switch between fancy and barebones styling
 
+## Keyboard Shortcuts
+
+Press `?` to see all shortcuts. Shortcuts are disabled while typing in an input field.
+
+| Key | Action |
+|-----|--------|
+| `A` | Focus the add-item input on the active card |
+| `N` | Create a new checklist |
+| `S` | Toggle sidebar |
+| `⌫` | Navigate back one level |
+| `H` | Navigate to root |
+| `B` | Toggle barebones mode |
+| `E` | Export checklist as JSON |
+| `?` | Show/hide keyboard shortcuts help |
+
 ## Tech Stack
 
 | Tool | Purpose |
