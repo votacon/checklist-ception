@@ -20,12 +20,20 @@ export function AddItemForm({ onAdd }: AddItemFormProps) {
     setText("");
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
   return (
     <form onSubmit={handleSubmit} className="flex gap-2">
       <input
         type="text"
         value={text}
         onChange={(e) => setText(e.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder="Add a new item..."
         data-add-item-input
         className={`flex-1 h-8 px-3 text-sm ${s(theme, "text-body")} placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 focus:border-transparent ${s(theme, "input")}`}

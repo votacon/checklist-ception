@@ -13,4 +13,6 @@ export const SHORTCUTS = {
   CYCLE_THEME: { key: "b", label: "B", description: "Cycle theme" },
   EXPORT: { key: "e", label: "E", description: "Export checklist" },
   SHOW_HELP: { key: "?", label: "?", description: "Show keyboard shortcuts" },
+  UNDO: { key: "z", label: "Ctrl+Z", description: "Undo" },
+  REDO: { key: "y", label: "Ctrl+Y", description: "Redo" },
 } as const satisfies Record<string, ShortcutDefinition>;

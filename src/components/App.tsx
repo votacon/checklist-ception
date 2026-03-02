@@ -23,6 +23,8 @@ export interface ChecklistViewHandle {
   navigateBack: () => void;
   navigateHome: () => void;
   exportData: () => void;
+  undo: () => void;
+  redo: () => void;
 }
 
 interface ChecklistViewProps {
@@ -51,6 +53,8 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
       resetChecks,
       navigateToRoot,
       exportData,
+      undo,
+      redo,
     } = useChecklist({
       initialItems: checklist.items,
       onItemsChange,
@@ -65,6 +69,8 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
       },
       navigateHome: () => navigateToRoot(),
       exportData: () => exportData(),
+      undo: () => undo(),
+      redo: () => redo(),
     }));
 
     return (
@@ -188,6 +194,8 @@ function AppContent({
     onCycleTheme: cycleTheme,
     onExport: () => checklistViewRef.current?.exportData(),
     onToggleHelp: handleToggleHelp,
+    onUndo: () => checklistViewRef.current?.undo(),
+    onRedo: () => checklistViewRef.current?.redo(),
   });
 
   return (

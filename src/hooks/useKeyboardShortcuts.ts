@@ -10,6 +10,8 @@ interface KeyboardShortcutHandlers {
   onCycleTheme: () => void;
   onExport: () => void;
   onToggleHelp: () => void;
+  onUndo: () => void;
+  onRedo: () => void;
 }
 
 function isInputFocused(): boolean {
@@ -30,7 +32,23 @@ export function useKeyboardShortcuts(handlers: KeyboardShortcutHandlers) {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      // Ctrl/Cmd shortcuts (undo/redo) — skip when input is focused to preserve native undo
+      if ((e.ctrlKey || e.metaKey) && !e.altKey) {
+        if (isInputFocused()) return;
+        const h = handlersRef.current;
+        if (e.key === "z" && !e.shiftKey) {
+          e.preventDefault();
+          h.onUndo();
+          return;
+        }
+        if (e.key === "y" || (e.key === "z" && e.shiftKey) || (e.key === "Z" && e.shiftKey)) {
+          e.preventDefault();
+          h.onRedo();
+          return;
+        }
+        return;
+      }
+      if (e.altKey) return;
       if (isInputFocused()) return;
 
       const h = handlersRef.current;

@@ -20,7 +20,7 @@ export function Breadcrumbs({
   if (path.length === 0) return null;
 
   return (
-    <nav className={`flex items-center gap-1 text-sm ${s(theme, "text-muted")} overflow-x-auto pb-1`}>
+    <nav className={`flex items-center gap-1 text-sm ${s(theme, "text-muted")} overflow-x-auto scrollbar-hide`}>
       <Tooltip text="Go to root" shortcut="H">
         <button
           onClick={onNavigateToRoot}

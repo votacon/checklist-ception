@@ -123,7 +123,7 @@ export function CascadingCards({
   return (
     <div
       ref={scrollRef}
-      className="flex overflow-x-auto pb-4 scrollbar-thin"
+      className="flex overflow-x-auto pb-2 scrollbar-hide"
     >
       {isBarebones ? cards : <AnimatePresence mode="popLayout">{cards}</AnimatePresence>}
     </div>

@@ -33,6 +33,11 @@ export function EditItemModal({ item, onSave, onCancel }: EditItemModalProps) {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Escape") onCancel();
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      const trimmed = text.trim();
+      if (trimmed) onSave(trimmed);
+    }
   };
 
   return (

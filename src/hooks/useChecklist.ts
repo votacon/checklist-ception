@@ -18,6 +18,8 @@ interface UseChecklistParams {
   checklistTitle: string;
 }
 
+const MAX_HISTORY = 50;
+
 export function useChecklist({
   initialItems,
   onItemsChange,
@@ -26,6 +28,11 @@ export function useChecklist({
   const [rootItems, setRootItems] = useState<ChecklistItem[]>(initialItems);
   const [editingItem, setEditingItem] = useState<ChecklistItem | null>(null);
   const isInitialRender = useRef(true);
+
+  // Undo/Redo history
+  const historyRef = useRef<{ past: ChecklistItem[][]; future: ChecklistItem[][] }>({ past: [], future: [] });
+  const isUndoRedoRef = useRef(false);
+  const prevItemsRef = useRef(rootItems);
 
   const {
     navStack,
@@ -43,6 +50,25 @@ export function useChecklist({
     }
     onItemsChange(rootItems);
   }, [rootItems, onItemsChange]);
+
+  // Track changes for undo/redo history
+  useEffect(() => {
+    const prev = prevItemsRef.current;
+    prevItemsRef.current = rootItems;
+
+    if (isUndoRedoRef.current) {
+      isUndoRedoRef.current = false;
+      return;
+    }
+
+    if (prev !== rootItems) {
+      historyRef.current.past.push(prev);
+      if (historyRef.current.past.length > MAX_HISTORY) {
+        historyRef.current.past.shift();
+      }
+      historyRef.current.future = [];
+    }
+  }, [rootItems]);
 
   // NavStack validation: truncate if tree mutations make an entry invalid
   useEffect(() => {
@@ -148,6 +174,25 @@ export function useChecklist({
     downloadJson(rootItems);
   }, [rootItems]);
 
+  // Undo / Redo
+  const undo = useCallback(() => {
+    const h = historyRef.current;
+    if (h.past.length === 0) return;
+    const prev = h.past.pop()!;
+    h.future.unshift(prevItemsRef.current);
+    isUndoRedoRef.current = true;
+    setRootItems(prev);
+  }, []);
+
+  const redo = useCallback(() => {
+    const h = historyRef.current;
+    if (h.future.length === 0) return;
+    const next = h.future.shift()!;
+    h.past.push(prevItemsRef.current);
+    isUndoRedoRef.current = true;
+    setRootItems(next);
+  }, []);
+
   return {
     rootItems,
     navStack,
@@ -166,5 +211,7 @@ export function useChecklist({
     resetChecks,
     navigateToRoot: resetNavigation,
     exportData,
+    undo,
+    redo,
   };
 }
