@@ -1,8 +1,9 @@
 import { type ReactNode, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import type { CardLevel } from "../types";
+import type { CardLevel, ItemColor } from "../types";
 import { cardVariants, cardTransition } from "../utils/animation";
 import { CARD_LAYOUT } from "../utils/constants";
+import { countItems } from "../utils/findNode";
 import { s } from "../utils/styles";
 import { useTheme } from "../contexts/ThemeContext";
 import { ChecklistCard } from "./ChecklistCard";
@@ -15,6 +16,10 @@ interface CascadingCardsProps {
   onEdit: (id: string) => void;
   onDrillDown: (id: string, fromDepth?: number) => void;
   onReorder: (path: string[], fromIndex: number, toIndex: number) => void;
+  onSetColor?: (id: string, color: ItemColor | undefined) => void;
+  onMove?: (id: string) => void;
+  showMoveButton?: boolean;
+  focusMode?: boolean;
 }
 
 function getPathForLevel(levels: CardLevel[], levelIndex: number): string[] {
@@ -34,11 +39,12 @@ interface CardWrapperProps {
   cardKey: string;
   zIndex: number;
   overlapMargin: string;
+  widthOverride?: string;
   children: ReactNode;
 }
 
-function CardWrapper({ isBarebones, isCollapsed, cardKey, zIndex, overlapMargin, children }: CardWrapperProps) {
-  const width = isCollapsed ? CARD_LAYOUT.COLLAPSED_WIDTH : CARD_LAYOUT.EXPANDED_WIDTH;
+function CardWrapper({ isBarebones, isCollapsed, cardKey, zIndex, overlapMargin, widthOverride, children }: CardWrapperProps) {
+  const width = widthOverride ?? (isCollapsed ? CARD_LAYOUT.COLLAPSED_WIDTH : CARD_LAYOUT.EXPANDED_WIDTH);
   if (isBarebones) {
     return <div key={cardKey} className={`shrink-0 ${width} relative ${overlapMargin}`} style={{ zIndex }}>{children}</div>;
   }
@@ -67,6 +73,10 @@ export function CascadingCards({
   onEdit,
   onDrillDown,
   onReorder,
+  onSetColor,
+  onMove,
+  showMoveButton = false,
+  focusMode = false,
 }: CascadingCardsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { theme, isBarebones } = useTheme();
@@ -81,19 +91,30 @@ export function CascadingCards({
     }
   }, [levels.length, isBarebones]);
 
-  const cards = levels.map((level, index) => {
+  const levelsToRender = focusMode ? [levels[levels.length - 1]] : levels;
+
+  const cards = levelsToRender.map((level) => {
+    const index = levels.indexOf(level);
     const isLastCard = index === levels.length - 1;
-    const isCollapsed = levels.length > CARD_LAYOUT.COLLAPSE_THRESHOLD && index < levels.length - 2;
+    const isCollapsed = !focusMode && levels.length > CARD_LAYOUT.COLLAPSE_THRESHOLD && index < levels.length - 2;
     const path = getPathForLevel(levels, index);
     const cardKey = level.parentId ?? "root";
-    const overlapMargin = index === 0
+    const overlapMargin = focusMode || index === 0
       ? ""
       : levels.length <= 2
         ? "ml-[2%]"
         : "-ml-6";
 
     return (
-      <CardWrapper key={cardKey} cardKey={cardKey} isBarebones={isBarebones} isCollapsed={isCollapsed} zIndex={index} overlapMargin={overlapMargin}>
+      <CardWrapper
+        key={cardKey}
+        cardKey={cardKey}
+        isBarebones={isBarebones}
+        isCollapsed={isCollapsed}
+        zIndex={index}
+        overlapMargin={overlapMargin}
+        widthOverride={focusMode ? CARD_LAYOUT.FOCUS_WIDTH : undefined}
+      >
         <div className="px-1 pb-2">
           <h3
             className={`font-semibold truncate ${
@@ -104,6 +125,14 @@ export function CascadingCards({
           >
             {level.title}
           </h3>
+          {isCollapsed && level.items.length > 0 && (() => {
+            const { completed, total } = countItems(level.items);
+            return (
+              <span className={`text-xs ${s(theme, "text-muted")}`}>
+                {completed}/{total}
+              </span>
+            );
+          })()}
         </div>
         <ChecklistCard
           items={level.items}
@@ -112,6 +141,9 @@ export function CascadingCards({
           onDelete={onDelete}
           onEdit={onEdit}
           onDrillDown={(id) => onDrillDown(id, level.depth)}
+          onSetColor={onSetColor}
+          onMove={onMove}
+          showMoveButton={showMoveButton}
           activeChildId={level.activeChildId}
           isCollapsed={isCollapsed}
           onReorder={(from, to) => onReorder(path, from, to)}

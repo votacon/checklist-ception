@@ -1,9 +1,19 @@
-import { Check, ChevronRight, GripVertical, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { ArrowRightLeft, Check, ChevronRight, GripVertical, Palette, Pencil, Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { ChecklistItem as ChecklistItemType } from "../types";
+import type { ChecklistItem as ChecklistItemType, ItemColor } from "../types";
 import { s } from "../utils/styles";
 import { useTheme } from "../contexts/ThemeContext";
+import { ColorPicker } from "./ColorPicker";
+
+const COLOR_DOT_CLASS: Record<ItemColor, string> = {
+  red: "bg-red-500",
+  yellow: "bg-yellow-400",
+  green: "bg-green-500",
+  blue: "bg-blue-500",
+  purple: "bg-purple-500",
+};
 
 interface ChecklistItemProps {
   item: ChecklistItemType;
@@ -11,6 +21,9 @@ interface ChecklistItemProps {
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
   onDrillDown: (id: string) => void;
+  onSetColor?: (id: string, color: ItemColor | undefined) => void;
+  onMove?: (id: string) => void;
+  showMoveButton?: boolean;
   isActive?: boolean;
   isCompact?: boolean;
 }
@@ -21,11 +34,15 @@ export function ChecklistItemRow({
   onDelete,
   onEdit,
   onDrillDown,
+  onSetColor,
+  onMove,
+  showMoveButton = false,
   isActive = false,
   isCompact = false,
 }: ChecklistItemProps) {
   const subtaskCount = item.subtasks.length;
   const { theme } = useTheme();
+  const [showColorPicker, setShowColorPicker] = useState(false);
 
   const {
     attributes,
@@ -97,6 +114,9 @@ export function ChecklistItemRow({
           isCompact ? "min-h-[32px]" : "min-h-[36px]"
         }`}
       >
+        {item.color && (
+          <span className={`shrink-0 rounded-full ${COLOR_DOT_CLASS[item.color]} ${isCompact ? "h-1.5 w-1.5" : "h-2.5 w-2.5"}`} />
+        )}
         <span
           className={`${isCompact ? "text-sm" : "text-lg"} ${
             item.completed ? `line-through ${s(theme, "text-muted")}` : s(theme, "text-body")
@@ -114,6 +134,24 @@ export function ChecklistItemRow({
       {/* Actions — hidden in compact mode */}
       {!isCompact && (
         <div className={`flex items-center gap-1 ${s(theme, "hover-reveal")}`}>
+          {onSetColor && (
+            <div className="relative">
+              <button
+                onClick={() => setShowColorPicker((p) => !p)}
+                className={`h-7 w-7 flex items-center justify-center ${s(theme, "icon-muted")} ${s(theme, "icon-hover")} ${s(theme, "btn-icon")}`}
+                aria-label="Set color"
+              >
+                <Palette className="h-3.5 w-3.5" />
+              </button>
+              {showColorPicker && (
+                <ColorPicker
+                  currentColor={item.color}
+                  onSelect={(color) => onSetColor(item.id, color)}
+                  onClose={() => setShowColorPicker(false)}
+                />
+              )}
+            </div>
+          )}
           <button
             onClick={() => onEdit(item.id)}
             className={`h-7 w-7 flex items-center justify-center ${s(theme, "icon-muted")} ${s(theme, "icon-hover")} ${s(theme, "btn-icon")}`}
@@ -121,6 +159,15 @@ export function ChecklistItemRow({
           >
             <Pencil className="h-3.5 w-3.5" />
           </button>
+          {showMoveButton && onMove && (
+            <button
+              onClick={() => onMove(item.id)}
+              className={`h-7 w-7 flex items-center justify-center ${s(theme, "icon-muted")} ${s(theme, "icon-hover")} ${s(theme, "btn-icon")}`}
+              aria-label="Move to another checklist"
+            >
+              <ArrowRightLeft className="h-3.5 w-3.5" />
+            </button>
+          )}
           <button
             onClick={() => onDelete(item.id)}
             className={`h-7 w-7 flex items-center justify-center ${s(theme, "icon-muted")} hover:text-red-500 ${s(theme, "btn-icon")}`}

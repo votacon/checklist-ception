@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useCallback, useRef } from "react";
-import type { ChecklistItem } from "../types";
+import type { ChecklistItem, ItemColor } from "../types";
 import {
   findNodeById,
   updateNodeById,
@@ -9,7 +9,7 @@ import {
   getAllLevels,
   uncheckAll,
 } from "../utils/findNode";
-import { downloadJson } from "../utils/exportImport";
+import { downloadJson, downloadMarkdown } from "../utils/exportImport";
 import { useNavigation } from "./useNavigation";
 
 interface UseChecklistParams {
@@ -132,6 +132,15 @@ export function useChecklist({
     setRootItems((prev) => deleteNodeById(prev, id));
   }, []);
 
+  const setItemColor = useCallback((id: string, color: ItemColor | undefined) => {
+    setRootItems((prev) =>
+      updateNodeById(prev, id, (node) => ({
+        ...node,
+        color,
+      })),
+    );
+  }, []);
+
   const startEdit = useCallback(
     (id: string) => {
       const node = findNodeById(rootItems, id);
@@ -174,6 +183,10 @@ export function useChecklist({
     downloadJson(rootItems);
   }, [rootItems]);
 
+  const exportMarkdown = useCallback(() => {
+    downloadMarkdown(rootItems, checklistTitle);
+  }, [rootItems, checklistTitle]);
+
   // Undo / Redo
   const undo = useCallback(() => {
     const h = historyRef.current;
@@ -202,6 +215,7 @@ export function useChecklist({
     addItem,
     toggleItem,
     deleteItem,
+    setItemColor,
     startEdit,
     saveEdit,
     cancelEdit,
@@ -209,8 +223,10 @@ export function useChecklist({
     navigateToDepth,
     reorderItems,
     resetChecks,
+    setNavStack,
     navigateToRoot: resetNavigation,
     exportData,
+    exportMarkdown,
     undo,
     redo,
   };

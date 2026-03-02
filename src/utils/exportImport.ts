@@ -34,6 +34,31 @@ export function downloadAllJson(checklists: Checklist[]): void {
   URL.revokeObjectURL(url);
 }
 
+function itemsToMarkdown(items: ChecklistItem[], indent: number): string {
+  let md = "";
+  const prefix = "  ".repeat(indent);
+  for (const item of items) {
+    const check = item.completed ? "x" : " ";
+    md += `${prefix}- [${check}] ${item.text}\n`;
+    if (item.subtasks.length > 0) {
+      md += itemsToMarkdown(item.subtasks, indent + 1);
+    }
+  }
+  return md;
+}
+
+export function downloadMarkdown(items: ChecklistItem[], title: string): void {
+  const md = `# ${title}\n\n${itemsToMarkdown(items, 0)}`;
+  const blob = new Blob([md], { type: "text/markdown" });
+  const url = URL.createObjectURL(blob);
+  const date = new Date().toISOString().slice(0, 10);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${title.replace(/\s+/g, "-").toLowerCase()}-${date}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function parseImportedJson(text: string): ChecklistItem[] | null {
   try {
     const parsed: unknown = JSON.parse(text);

@@ -109,6 +109,19 @@ export function uncheckAll(items: ChecklistItem[]): ChecklistItem[] {
   }));
 }
 
+export function countItems(items: ChecklistItem[]): { completed: number; total: number } {
+  let completed = 0;
+  let total = 0;
+  for (const item of items) {
+    total++;
+    if (item.completed) completed++;
+    const sub = countItems(item.subtasks);
+    completed += sub.completed;
+    total += sub.total;
+  }
+  return { completed, total };
+}
+
 export function getBreadcrumbPath(
   items: ChecklistItem[],
   navStack: string[],

@@ -1,8 +1,11 @@
+export type ItemColor = "red" | "yellow" | "green" | "blue" | "purple";
+
 export interface ChecklistItem {
   id: string;
   text: string;
   completed: boolean;
   subtasks: ChecklistItem[];
+  color?: ItemColor;
 }
 
 export interface BreadcrumbItem {

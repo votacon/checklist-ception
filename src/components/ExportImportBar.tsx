@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Download, Upload, RotateCcw, Archive } from "lucide-react";
+import { Download, Upload, RotateCcw, Archive, FileText } from "lucide-react";
 import { s } from "../utils/styles";
 import { useTheme } from "../contexts/ThemeContext";
 import { Tooltip } from "./Tooltip";
@@ -7,11 +7,12 @@ import { Tooltip } from "./Tooltip";
 interface ExportImportBarProps {
   onExport: () => void;
   onExportAll: () => void;
+  onExportMarkdown: () => void;
   onImport: (fileName: string, text: string) => boolean;
   onResetChecks: () => void;
 }
 
-export function ExportImportBar({ onExport, onExportAll, onImport, onResetChecks }: ExportImportBarProps) {
+export function ExportImportBar({ onExport, onExportAll, onExportMarkdown, onImport, onResetChecks }: ExportImportBarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { theme } = useTheme();
 
@@ -61,6 +62,12 @@ export function ExportImportBar({ onExport, onExportAll, onImport, onResetChecks
         <button onClick={onExportAll} className={buttonClass}>
           <Archive className="h-4 w-4" />
           Export All
+        </button>
+      </Tooltip>
+      <Tooltip text="Export as Markdown">
+        <button onClick={onExportMarkdown} className={buttonClass}>
+          <FileText className="h-4 w-4" />
+          Export MD
         </button>
       </Tooltip>
       <Tooltip text="Import checklist">

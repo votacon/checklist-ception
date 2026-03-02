@@ -8,6 +8,11 @@ import { ThemeContext, useTheme } from "../contexts/ThemeContext";
 import { s } from "../utils/styles";
 import type { Checklist, ChecklistItem } from "../types";
 import { parseImportedJson, parseImportedBundleJson } from "../utils/exportImport";
+import { findNodeById } from "../utils/findNode";
+import { useSearch } from "../hooks/useSearch";
+import { SearchBar } from "./SearchBar";
+import { SearchResults } from "./SearchResults";
+import { MoveItemModal } from "./MoveItemModal";
 import { ThemePicker } from "./ThemePicker";
 import { Breadcrumbs } from "./Breadcrumbs";
 import { CascadingCards } from "./CascadingCards";
@@ -25,6 +30,9 @@ export interface ChecklistViewHandle {
   exportData: () => void;
   undo: () => void;
   redo: () => void;
+  openSearch: () => void;
+  deleteItem: (id: string) => void;
+  getRootItems: () => ChecklistItem[];
 }
 
 interface ChecklistViewProps {
@@ -32,11 +40,15 @@ interface ChecklistViewProps {
   onItemsChange: (items: ChecklistItem[]) => void;
   onExportAll: () => void;
   onImportChecklist: (fileName: string, text: string) => boolean;
+  focusMode?: boolean;
+  allChecklists?: Checklist[];
+  onMoveItem?: (itemId: string) => void;
 }
 
 const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
-  function ChecklistView({ checklist, onItemsChange, onExportAll, onImportChecklist }, ref) {
+  function ChecklistView({ checklist, onItemsChange, onExportAll, onImportChecklist, focusMode = false, allChecklists = [], onMoveItem }, ref) {
     const {
+      rootItems,
       editingItem,
       navStack,
       cardLevels,
@@ -44,6 +56,7 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
       addItem,
       toggleItem,
       deleteItem,
+      setItemColor,
       startEdit,
       saveEdit,
       cancelEdit,
@@ -51,8 +64,10 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
       navigateToDepth,
       reorderItems,
       resetChecks,
+      setNavStack,
       navigateToRoot,
       exportData,
+      exportMarkdown,
       undo,
       redo,
     } = useChecklist({
@@ -60,6 +75,13 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
       onItemsChange,
       checklistTitle: checklist.title,
     });
+
+    const search = useSearch(rootItems);
+
+    const handleSearchSelect = useCallback((path: string[]) => {
+      setNavStack(path);
+      search.close();
+    }, [setNavStack, search]);
 
     useImperativeHandle(ref, () => ({
       navigateBack: () => {
@@ -71,14 +93,36 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
       exportData: () => exportData(),
       undo: () => undo(),
       redo: () => redo(),
+      openSearch: () => search.open(),
+      deleteItem: (id: string) => deleteItem(id),
+      getRootItems: () => rootItems,
     }));
 
     return (
       <>
         {/* Export/Import bar */}
         <div className="max-w-lg px-4">
-          <ExportImportBar onExport={exportData} onExportAll={onExportAll} onImport={onImportChecklist} onResetChecks={resetChecks} />
+          <ExportImportBar onExport={exportData} onExportAll={onExportAll} onExportMarkdown={exportMarkdown} onImport={onImportChecklist} onResetChecks={resetChecks} />
         </div>
+
+        {/* Search bar */}
+        {search.isOpen && (
+          <div className="max-w-lg px-4">
+            <SearchBar
+              query={search.query}
+              onQueryChange={search.setQuery}
+              onClose={search.close}
+              resultCount={search.results.length}
+            />
+            {search.query && (
+              <SearchResults
+                results={search.results}
+                onSelect={handleSearchSelect}
+                onToggle={toggleItem}
+              />
+            )}
+          </div>
+        )}
 
         {/* Breadcrumbs */}
         <div className="max-w-lg px-4">
@@ -99,6 +143,10 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
             onEdit={startEdit}
             onDrillDown={drillDown}
             onReorder={reorderItems}
+            onSetColor={setItemColor}
+            onMove={onMoveItem}
+            showMoveButton={allChecklists.length > 1}
+            focusMode={focusMode}
           />
         </div>
 
@@ -142,6 +190,8 @@ function AppContent({
 }) {
   const { theme } = useTheme();
   const [showHelp, setShowHelp] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
+  const [movingItemId, setMovingItemId] = useState<string | null>(null);
   const checklistViewRef = useRef<ChecklistViewHandle>(null);
   const createFormRef = useRef<SidebarCreateFormHandle>(null);
 
@@ -165,6 +215,21 @@ function AppContent({
   const handleToggleHelp = useCallback(() => {
     setShowHelp((prev) => !prev);
   }, []);
+
+  const handleToggleFocusMode = useCallback(() => {
+    setFocusMode((prev) => !prev);
+  }, []);
+
+  const handleMoveConfirm = useCallback((targetChecklistId: string) => {
+    if (!movingItemId) return;
+    const rootItems = checklistViewRef.current?.getRootItems();
+    if (!rootItems) return;
+    const item = findNodeById(rootItems, movingItemId);
+    if (!item) return;
+    manager.moveItemToChecklist(item, targetChecklistId);
+    checklistViewRef.current?.deleteItem(movingItemId);
+    setMovingItemId(null);
+  }, [movingItemId, manager]);
 
   const handleImportChecklist = useCallback((fileName: string, text: string): boolean => {
     // Try multi-checklist bundle format first
@@ -194,6 +259,8 @@ function AppContent({
     onCycleTheme: cycleTheme,
     onExport: () => checklistViewRef.current?.exportData(),
     onToggleHelp: handleToggleHelp,
+    onToggleFocusMode: handleToggleFocusMode,
+    onOpenSearch: () => checklistViewRef.current?.openSearch(),
     onUndo: () => checklistViewRef.current?.undo(),
     onRedo: () => checklistViewRef.current?.redo(),
   });
@@ -239,6 +306,9 @@ function AppContent({
             onItemsChange={manager.updateActiveItems}
             onExportAll={manager.exportAll}
             onImportChecklist={handleImportChecklist}
+            focusMode={focusMode}
+            allChecklists={manager.checklists}
+            onMoveItem={(id) => setMovingItemId(id)}
           />
         </div>
       </div>
@@ -248,6 +318,16 @@ function AppContent({
 
       {/* Help overlay */}
       {showHelp && <ShortcutHelpOverlay onClose={() => setShowHelp(false)} />}
+
+      {/* Move item modal */}
+      {movingItemId && (
+        <MoveItemModal
+          checklists={manager.checklists}
+          currentChecklistId={manager.activeChecklist.id}
+          onSelect={handleMoveConfirm}
+          onCancel={() => setMovingItemId(null)}
+        />
+      )}
     </div>
   );
 }

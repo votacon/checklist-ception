@@ -88,6 +88,21 @@ export function useChecklistManager() {
     downloadAllJson(state.checklists);
   }, [state.checklists]);
 
+  const moveItemToChecklist = useCallback((item: ChecklistItem, targetChecklistId: string) => {
+    setState((prev) => {
+      const next: AppState = {
+        ...prev,
+        checklists: prev.checklists.map((c) =>
+          c.id === targetChecklistId
+            ? { ...c, items: [...c.items, JSON.parse(JSON.stringify(item)) as ChecklistItem] }
+            : c,
+        ),
+      };
+      persist(next);
+      return next;
+    });
+  }, []);
+
   const importChecklist = useCallback((title: string, items: ChecklistItem[]) => {
     const newChecklist: Checklist = {
       id: crypto.randomUUID(),
@@ -115,5 +130,6 @@ export function useChecklistManager() {
     updateActiveItems,
     exportAll,
     importChecklist,
+    moveItemToChecklist,
   };
 }

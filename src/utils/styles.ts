@@ -10,7 +10,8 @@ type StyleKey =
   | "accent-text" | "icon-muted" | "icon-hover" | "icon-close-hover"
   | "row-active" | "sidebar-bg" | "sidebar-active" | "sidebar-inactive"
   | "checkbox-checked" | "checkbox-unchecked" | "divider" | "focus-ring"
-  | "card-title" | "card-title-muted" | "btn-text" | "hamburger";
+  | "card-title" | "card-title-muted" | "btn-text" | "hamburger"
+  | "search-bar" | "search-highlight";
 
 type StyleMap = Record<StyleKey, string>;
 
@@ -55,6 +56,8 @@ const fancy: StyleMap = {
   "card-title-muted":  "text-slate-500",
   "btn-text":          "text-slate-600",
   "hamburger":         "text-slate-600 hover:text-slate-900 transition-colors",
+  "search-bar":        "bg-white rounded-xl shadow-sm border border-slate-200",
+  "search-highlight":  "bg-yellow-200/60",
 };
 
 const barebones: StyleMap = {
@@ -98,6 +101,8 @@ const barebones: StyleMap = {
   "card-title-muted":  "text-slate-500",
   "btn-text":          "text-slate-600",
   "hamburger":         "text-slate-600 hover:text-slate-900",
+  "search-bar":        "bg-white border border-black",
+  "search-highlight":  "bg-yellow-200/60",
 };
 
 const vibrant: StyleMap = {
@@ -135,6 +140,8 @@ const vibrant: StyleMap = {
   "card-title-muted":  "text-purple-400",
   "btn-text":          "text-purple-600",
   "hamburger":         "text-purple-600 hover:text-purple-900 transition-colors",
+  "search-bar":        "bg-white rounded-xl shadow-sm border border-purple-200",
+  "search-highlight":  "bg-pink-200/60",
 };
 
 const pastel: StyleMap = {
@@ -172,6 +179,8 @@ const pastel: StyleMap = {
   "card-title-muted":  "text-violet-400",
   "btn-text":          "text-violet-500",
   "hamburger":         "text-violet-500 hover:text-violet-800 transition-colors",
+  "search-bar":        "bg-white rounded-xl shadow-sm border border-violet-200/60",
+  "search-highlight":  "bg-violet-200/60",
 };
 
 const playful: StyleMap = {
@@ -198,6 +207,8 @@ const playful: StyleMap = {
   "card-title-muted":  "text-teal-500",
   "btn-text":          "text-teal-600",
   "hamburger":         "text-teal-600 hover:text-teal-900 transition-colors",
+  "search-bar":        "bg-white rounded-xl shadow-sm border border-teal-200",
+  "search-highlight":  "bg-amber-200/60",
 };
 
 const neon: StyleMap = {
@@ -238,6 +249,8 @@ const neon: StyleMap = {
   "card-title-muted":  "text-slate-400",
   "btn-text":          "text-cyan-400",
   "hamburger":         "text-cyan-400 hover:text-cyan-300 transition-colors",
+  "search-bar":        "bg-slate-700 rounded-xl border border-slate-600",
+  "search-highlight":  "bg-cyan-500/30",
 };
 
 const themes: Record<Theme, StyleMap> = {

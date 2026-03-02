@@ -12,7 +12,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import type { ChecklistItem } from "../types";
+import type { ChecklistItem, ItemColor } from "../types";
 import { s } from "../utils/styles";
 import { useTheme } from "../contexts/ThemeContext";
 import { AddItemForm } from "./AddItemForm";
@@ -26,6 +26,9 @@ interface ChecklistCardProps {
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
   onDrillDown: (id: string) => void;
+  onSetColor?: (id: string, color: ItemColor | undefined) => void;
+  onMove?: (id: string) => void;
+  showMoveButton?: boolean;
   activeChildId?: string | null;
   isCollapsed?: boolean;
   onReorder: (fromIndex: number, toIndex: number) => void;
@@ -38,6 +41,9 @@ export function ChecklistCard({
   onDelete,
   onEdit,
   onDrillDown,
+  onSetColor,
+  onMove,
+  showMoveButton = false,
   activeChildId = null,
   isCollapsed = false,
   onReorder,
@@ -83,6 +89,9 @@ export function ChecklistCard({
                   onDelete={onDelete}
                   onEdit={onEdit}
                   onDrillDown={onDrillDown}
+                  onSetColor={onSetColor}
+                  onMove={onMove}
+                  showMoveButton={showMoveButton}
                   isActive={item.id === activeChildId}
                   isCompact={isCollapsed}
                 />
