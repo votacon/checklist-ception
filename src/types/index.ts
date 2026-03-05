@@ -34,3 +34,15 @@ export interface AppState {
   checklists: Checklist[];
   activeChecklistId: string;
 }
+
+export interface SortableItemData {
+  path: string[];
+  levelIndex: number;
+  itemId: string;
+}
+
+export interface CrossCardDropIndicator {
+  targetId: string;
+  zone: DropZone;
+  levelIndex: number;
+}

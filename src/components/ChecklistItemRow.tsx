@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ArrowRightLeft, Check, ChevronRight, GripVertical, Palette, Pencil, Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { ChecklistItem as ChecklistItemType, DropZone, ItemColor } from "../types";
+import type { ChecklistItem as ChecklistItemType, DropZone, ItemColor, SortableItemData } from "../types";
 import { s } from "../utils/styles";
 import { useTheme } from "../contexts/ThemeContext";
 import { ColorPicker } from "./ColorPicker";
@@ -27,6 +27,8 @@ interface ChecklistItemProps {
   isActive?: boolean;
   isCompact?: boolean;
   dropIndicator?: DropZone | null;
+  levelPath?: string[];
+  levelIndex?: number;
 }
 
 export function ChecklistItemRow({
@@ -41,10 +43,18 @@ export function ChecklistItemRow({
   isActive = false,
   isCompact = false,
   dropIndicator = null,
+  levelPath = [],
+  levelIndex = 0,
 }: ChecklistItemProps) {
   const subtaskCount = item.subtasks.length;
   const { theme } = useTheme();
   const [showColorPicker, setShowColorPicker] = useState(false);
+
+  const sortableData: SortableItemData = {
+    path: levelPath,
+    levelIndex,
+    itemId: item.id,
+  };
 
   const {
     attributes,
@@ -53,7 +63,7 @@ export function ChecklistItemRow({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: item.id });
+  } = useSortable({ id: item.id, data: sortableData });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -78,7 +88,7 @@ export function ChecklistItemRow({
           ? s(theme, "row-active")
           : s(theme, "row-hover")
       } ${isCompact ? "min-h-[32px] px-2 py-1" : "min-h-[40px] px-3 py-2"} ${
-        isDragging ? "opacity-50 z-50" : ""
+        isDragging ? "opacity-0" : ""
       } ${dropIndicator === "nest" ? "ring-2 ring-blue-500 bg-blue-500/10" : ""}`}
     >
       {/* Drag handle */}

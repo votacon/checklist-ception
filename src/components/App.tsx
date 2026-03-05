@@ -64,6 +64,7 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
       navigateToDepth,
       reorderItems,
       nestItem,
+      moveItemToPath,
       resetChecks,
       setNavStack,
       navigateToRoot,
@@ -138,6 +139,7 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
         <div className="px-4">
           <CascadingCards
             levels={cardLevels}
+            rootItems={rootItems}
             onAdd={addItem}
             onToggle={toggleItem}
             onDelete={deleteItem}
@@ -145,6 +147,7 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
             onDrillDown={drillDown}
             onReorder={reorderItems}
             onNest={nestItem}
+            onMoveItemToPath={moveItemToPath}
             onSetColor={setItemColor}
             onMove={onMoveItem}
             showMoveButton={allChecklists.length > 1}

@@ -165,3 +165,57 @@ export function getBreadcrumbPath(
   }
   return path;
 }
+
+/** Remove a node by id and return both the modified tree and the extracted node. */
+export function extractNodeById(
+  items: ChecklistItem[],
+  id: string,
+): { tree: ChecklistItem[]; node: ChecklistItem } | null {
+  const node = findNodeById(items, id);
+  if (!node) return null;
+  return { tree: deleteNodeById(items, id), node };
+}
+
+/** Insert a node at a specific path and index. Path is an array of parent IDs (empty = root). */
+export function insertNodeAtPath(
+  items: ChecklistItem[],
+  path: string[],
+  index: number,
+  node: ChecklistItem,
+): ChecklistItem[] {
+  if (path.length === 0) {
+    const result = [...items];
+    result.splice(index, 0, node);
+    return result;
+  }
+
+  const parentId = path[path.length - 1];
+  return updateNodeById(items, parentId, (parent) => {
+    const subtasks = [...parent.subtasks];
+    subtasks.splice(index, 0, node);
+    return { ...parent, subtasks };
+  });
+}
+
+/** Atomic extract + insert: move a node to a new path and index. */
+export function moveNodeToPath(
+  items: ChecklistItem[],
+  nodeId: string,
+  targetPath: string[],
+  targetIndex: number,
+): ChecklistItem[] {
+  const extracted = extractNodeById(items, nodeId);
+  if (!extracted) return items;
+  return insertNodeAtPath(extracted.tree, targetPath, targetIndex, extracted.node);
+}
+
+/** Check if ancestorId is an ancestor of descendantId in the tree. */
+export function isAncestorOf(
+  items: ChecklistItem[],
+  ancestorId: string,
+  descendantId: string,
+): boolean {
+  const ancestor = findNodeById(items, ancestorId);
+  if (!ancestor) return false;
+  return !!findNodeById(ancestor.subtasks, descendantId);
+}

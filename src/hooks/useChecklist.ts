@@ -9,6 +9,7 @@ import {
   getBreadcrumbPath,
   getAllLevels,
   uncheckAll,
+  moveNodeToPath,
 } from "../utils/findNode";
 import { downloadJson, downloadMarkdown } from "../utils/exportImport";
 import { useNavigation } from "./useNavigation";
@@ -186,6 +187,13 @@ export function useChecklist({
     [],
   );
 
+  const moveItemToPath = useCallback(
+    (itemId: string, targetPath: string[], targetIndex: number) => {
+      setRootItems((prev) => moveNodeToPath(prev, itemId, targetPath, targetIndex));
+    },
+    [],
+  );
+
   // Export / Import
   const exportData = useCallback(() => {
     downloadJson(rootItems);
@@ -231,6 +239,7 @@ export function useChecklist({
     navigateToDepth,
     reorderItems,
     nestItem,
+    moveItemToPath,
     resetChecks,
     setNavStack,
     navigateToRoot: resetNavigation,
