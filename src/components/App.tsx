@@ -63,6 +63,7 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
       drillDown,
       navigateToDepth,
       reorderItems,
+      nestItem,
       resetChecks,
       setNavStack,
       navigateToRoot,
@@ -143,6 +144,7 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
             onEdit={startEdit}
             onDrillDown={drillDown}
             onReorder={reorderItems}
+            onNest={nestItem}
             onSetColor={setItemColor}
             onMove={onMoveItem}
             showMoveButton={allChecklists.length > 1}

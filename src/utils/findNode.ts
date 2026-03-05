@@ -101,6 +101,35 @@ export function reorderChildrenAtPath(
   });
 }
 
+export function nestChildAtPath(
+  items: ChecklistItem[],
+  path: string[],
+  sourceIndex: number,
+  targetIndex: number,
+): ChecklistItem[] {
+  function nestInList(list: ChecklistItem[]): ChecklistItem[] {
+    const result = [...list];
+    const [moved] = result.splice(sourceIndex, 1);
+    // After removing source, adjust target index if source was before target
+    const adjustedTarget = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+    result[adjustedTarget] = {
+      ...result[adjustedTarget],
+      subtasks: [...result[adjustedTarget].subtasks, moved],
+    };
+    return result;
+  }
+
+  if (path.length === 0) {
+    return nestInList(items);
+  }
+
+  const parentId = path[path.length - 1];
+  return updateNodeById(items, parentId, (node) => ({
+    ...node,
+    subtasks: nestInList(node.subtasks),
+  }));
+}
+
 export function uncheckAll(items: ChecklistItem[]): ChecklistItem[] {
   return items.map((item) => ({
     ...item,

@@ -5,6 +5,7 @@ import {
   updateNodeById,
   deleteNodeById,
   reorderChildrenAtPath,
+  nestChildAtPath,
   getBreadcrumbPath,
   getAllLevels,
   uncheckAll,
@@ -178,6 +179,13 @@ export function useChecklist({
     [],
   );
 
+  const nestItem = useCallback(
+    (path: string[], sourceIndex: number, targetIndex: number) => {
+      setRootItems((prev) => nestChildAtPath(prev, path, sourceIndex, targetIndex));
+    },
+    [],
+  );
+
   // Export / Import
   const exportData = useCallback(() => {
     downloadJson(rootItems);
@@ -222,6 +230,7 @@ export function useChecklist({
     drillDown,
     navigateToDepth,
     reorderItems,
+    nestItem,
     resetChecks,
     setNavStack,
     navigateToRoot: resetNavigation,

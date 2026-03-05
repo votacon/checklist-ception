@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ArrowRightLeft, Check, ChevronRight, GripVertical, Palette, Pencil, Trash2 } from "lucide-react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import type { ChecklistItem as ChecklistItemType, ItemColor } from "../types";
+import type { ChecklistItem as ChecklistItemType, DropZone, ItemColor } from "../types";
 import { s } from "../utils/styles";
 import { useTheme } from "../contexts/ThemeContext";
 import { ColorPicker } from "./ColorPicker";
@@ -26,6 +26,7 @@ interface ChecklistItemProps {
   showMoveButton?: boolean;
   isActive?: boolean;
   isCompact?: boolean;
+  dropIndicator?: DropZone | null;
 }
 
 export function ChecklistItemRow({
@@ -39,6 +40,7 @@ export function ChecklistItemRow({
   showMoveButton = false,
   isActive = false,
   isCompact = false,
+  dropIndicator = null,
 }: ChecklistItemProps) {
   const subtaskCount = item.subtasks.length;
   const { theme } = useTheme();
@@ -59,6 +61,15 @@ export function ChecklistItemRow({
   };
 
   return (
+    <div className="relative">
+      {/* Drop indicator: insertion line above */}
+      {dropIndicator === "before" && (
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-blue-500 z-10" />
+      )}
+      {/* Drop indicator: insertion line below */}
+      {dropIndicator === "after" && (
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 z-10" />
+      )}
     <div
       ref={setNodeRef}
       style={style}
@@ -68,7 +79,7 @@ export function ChecklistItemRow({
           : s(theme, "row-hover")
       } ${isCompact ? "min-h-[32px] px-2 py-1" : "min-h-[40px] px-3 py-2"} ${
         isDragging ? "opacity-50 z-50" : ""
-      }`}
+      } ${dropIndicator === "nest" ? "ring-2 ring-blue-500 bg-blue-500/10" : ""}`}
     >
       {/* Drag handle */}
       {!isCompact && (
@@ -188,6 +199,7 @@ export function ChecklistItemRow({
           <ChevronRight className="h-4 w-4" />
         </button>
       )}
+    </div>
     </div>
   );
 }

@@ -16,6 +16,7 @@ interface CascadingCardsProps {
   onEdit: (id: string) => void;
   onDrillDown: (id: string, fromDepth?: number) => void;
   onReorder: (path: string[], fromIndex: number, toIndex: number) => void;
+  onNest?: (path: string[], sourceIndex: number, targetIndex: number) => void;
   onSetColor?: (id: string, color: ItemColor | undefined) => void;
   onMove?: (id: string) => void;
   showMoveButton?: boolean;
@@ -73,6 +74,7 @@ export function CascadingCards({
   onEdit,
   onDrillDown,
   onReorder,
+  onNest,
   onSetColor,
   onMove,
   showMoveButton = false,
@@ -147,6 +149,7 @@ export function CascadingCards({
           activeChildId={level.activeChildId}
           isCollapsed={isCollapsed}
           onReorder={(from, to) => onReorder(path, from, to)}
+          onNest={onNest ? (from, to) => onNest(path, from, to) : undefined}
         />
       </CardWrapper>
     );

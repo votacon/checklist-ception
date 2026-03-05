@@ -1,5 +1,7 @@
 export type ItemColor = "red" | "yellow" | "green" | "blue" | "purple";
 
+export type DropZone = "before" | "after" | "nest";
+
 export interface ChecklistItem {
   id: string;
   text: string;
