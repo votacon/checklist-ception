@@ -37,6 +37,7 @@ interface CascadingCardsProps {
   onMove?: (id: string) => void;
   showMoveButton?: boolean;
   focusMode?: boolean;
+  focusedItemId?: string | null;
 }
 
 function getPathForLevel(levels: CardLevel[], levelIndex: number): string[] {
@@ -97,6 +98,7 @@ export function CascadingCards({
   onMove,
   showMoveButton = false,
   focusMode = false,
+  focusedItemId = null,
 }: CascadingCardsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const { theme, isBarebones } = useTheme();
@@ -353,6 +355,7 @@ export function CascadingCards({
           onMove={onMove}
           showMoveButton={showMoveButton}
           activeChildId={level.activeChildId}
+          focusedItemId={isLastCard ? focusedItemId : null}
           isCollapsed={isCollapsed}
           dropIndicator={cardDropIndicator}
           levelPath={path}

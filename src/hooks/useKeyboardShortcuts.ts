@@ -12,6 +12,12 @@ interface KeyboardShortcutHandlers {
   onToggleHelp: () => void;
   onToggleFocusMode: () => void;
   onOpenSearch: () => void;
+  onItemUp: () => void;
+  onItemDown: () => void;
+  onItemEnter: () => void;
+  onItemToggle: () => void;
+  onItemDelete: () => void;
+  onClearItemFocus: () => void;
   onUndo: () => void;
   onRedo: () => void;
 }
@@ -100,6 +106,33 @@ export function useKeyboardShortcuts(handlers: KeyboardShortcutHandlers) {
         case SHORTCUTS.SEARCH.key:
           e.preventDefault();
           h.onOpenSearch();
+          break;
+        case "ArrowUp":
+        case "k":
+          e.preventDefault();
+          h.onItemUp();
+          break;
+        case "ArrowDown":
+        case "j":
+          e.preventDefault();
+          h.onItemDown();
+          break;
+        case "Enter":
+        case "ArrowRight":
+          e.preventDefault();
+          h.onItemEnter();
+          break;
+        case " ":
+          e.preventDefault();
+          h.onItemToggle();
+          break;
+        case "Delete":
+          e.preventDefault();
+          h.onItemDelete();
+          break;
+        case "Escape":
+          e.preventDefault();
+          h.onClearItemFocus();
           break;
       }
     };

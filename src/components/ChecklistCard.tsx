@@ -21,6 +21,7 @@ interface ChecklistCardProps {
   onMove?: (id: string) => void;
   showMoveButton?: boolean;
   activeChildId?: string | null;
+  focusedItemId?: string | null;
   isCollapsed?: boolean;
   dropIndicator?: CrossCardDropIndicator | null;
   levelPath?: string[];
@@ -39,6 +40,7 @@ export function ChecklistCard({
   onMove,
   showMoveButton = false,
   activeChildId = null,
+  focusedItemId = null,
   isCollapsed = false,
   dropIndicator = null,
   levelPath = [],
@@ -87,6 +89,7 @@ export function ChecklistCard({
                 onMove={onMove}
                 showMoveButton={showMoveButton}
                 isActive={item.id === activeChildId}
+                isFocused={item.id === focusedItemId}
                 isCompact={isCollapsed}
                 dropIndicator={
                   dropIndicator && dropIndicator.targetId === item.id

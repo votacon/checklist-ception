@@ -33,6 +33,12 @@ export interface ChecklistViewHandle {
   openSearch: () => void;
   deleteItem: (id: string) => void;
   getRootItems: () => ChecklistItem[];
+  itemUp: () => void;
+  itemDown: () => void;
+  itemEnter: () => void;
+  itemToggle: () => void;
+  itemDelete: () => void;
+  clearItemFocus: () => void;
 }
 
 interface ChecklistViewProps {
@@ -79,25 +85,114 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
     });
 
     const search = useSearch(rootItems);
+    const [focusedItemIdRaw, setFocusedItemId] = useState<string | null>(null);
+
+    const activeCardItems = useMemo(
+      () => cardLevels[cardLevels.length - 1]?.items ?? [],
+      [cardLevels],
+    );
+
+    // Derived: clear focus if focused item is no longer in active card
+    const focusedItemId = focusedItemIdRaw && activeCardItems.some((item) => item.id === focusedItemIdRaw)
+      ? focusedItemIdRaw
+      : null;
+
+    const scrollFocusedIntoView = useCallback((id: string) => {
+      setTimeout(() => {
+        const el = document.querySelector(`[data-item-id="${id}"]`);
+        el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+      }, 0);
+    }, []);
+
+    const handleItemUp = useCallback(() => {
+      if (activeCardItems.length === 0) return;
+      setFocusedItemId((prev) => {
+        if (!prev) {
+          const id = activeCardItems[activeCardItems.length - 1].id;
+          scrollFocusedIntoView(id);
+          return id;
+        }
+        const idx = activeCardItems.findIndex((item) => item.id === prev);
+        const newIdx = idx <= 0 ? activeCardItems.length - 1 : idx - 1;
+        const id = activeCardItems[newIdx].id;
+        scrollFocusedIntoView(id);
+        return id;
+      });
+    }, [activeCardItems, scrollFocusedIntoView]);
+
+    const handleItemDown = useCallback(() => {
+      if (activeCardItems.length === 0) return;
+      setFocusedItemId((prev) => {
+        if (!prev) {
+          const id = activeCardItems[0].id;
+          scrollFocusedIntoView(id);
+          return id;
+        }
+        const idx = activeCardItems.findIndex((item) => item.id === prev);
+        const newIdx = idx >= activeCardItems.length - 1 ? 0 : idx + 1;
+        const id = activeCardItems[newIdx].id;
+        scrollFocusedIntoView(id);
+        return id;
+      });
+    }, [activeCardItems, scrollFocusedIntoView]);
+
+    const handleItemEnter = useCallback(() => {
+      if (focusedItemId) {
+        drillDown(focusedItemId);
+        setFocusedItemId(null);
+      }
+    }, [focusedItemId, drillDown]);
+
+    const handleItemToggle = useCallback(() => {
+      if (focusedItemId) {
+        toggleItem(focusedItemId);
+      }
+    }, [focusedItemId, toggleItem]);
+
+    const handleItemDelete = useCallback(() => {
+      if (!focusedItemId) return;
+      const idx = activeCardItems.findIndex((item) => item.id === focusedItemId);
+      deleteItem(focusedItemId);
+      // Move focus to next item, or previous, or null
+      if (activeCardItems.length <= 1) {
+        setFocusedItemId(null);
+      } else if (idx < activeCardItems.length - 1) {
+        setFocusedItemId(activeCardItems[idx + 1].id);
+      } else {
+        setFocusedItemId(activeCardItems[idx - 1].id);
+      }
+    }, [focusedItemId, activeCardItems, deleteItem]);
+
+    const handleClearItemFocus = useCallback(() => {
+      setFocusedItemId(null);
+    }, []);
 
     const handleSearchSelect = useCallback((path: string[]) => {
       setNavStack(path);
       search.close();
+      setFocusedItemId(null);
     }, [setNavStack, search]);
 
     useImperativeHandle(ref, () => ({
       navigateBack: () => {
         if (navStack.length > 0) {
           navigateToDepth(navStack.length - 1);
+          setFocusedItemId(null);
         }
       },
-      navigateHome: () => navigateToRoot(),
+      navigateHome: () => { navigateToRoot(); setFocusedItemId(null); },
       exportData: () => exportData(),
       undo: () => undo(),
       redo: () => redo(),
       openSearch: () => search.open(),
       deleteItem: (id: string) => deleteItem(id),
       getRootItems: () => rootItems,
+      itemUp: handleItemUp,
+      itemDown: handleItemDown,
+      itemEnter: handleItemEnter,
+      itemToggle: handleItemToggle,
+      itemDelete: handleItemDelete,
+      clearItemFocus: handleClearItemFocus,
     }));
 
     return (
@@ -152,6 +247,7 @@ const ChecklistView = forwardRef<ChecklistViewHandle, ChecklistViewProps>(
             onMove={onMoveItem}
             showMoveButton={allChecklists.length > 1}
             focusMode={focusMode}
+            focusedItemId={focusedItemId}
           />
         </div>
 
@@ -266,6 +362,12 @@ function AppContent({
     onToggleHelp: handleToggleHelp,
     onToggleFocusMode: handleToggleFocusMode,
     onOpenSearch: () => checklistViewRef.current?.openSearch(),
+    onItemUp: () => checklistViewRef.current?.itemUp(),
+    onItemDown: () => checklistViewRef.current?.itemDown(),
+    onItemEnter: () => checklistViewRef.current?.itemEnter(),
+    onItemToggle: () => checklistViewRef.current?.itemToggle(),
+    onItemDelete: () => checklistViewRef.current?.itemDelete(),
+    onClearItemFocus: () => checklistViewRef.current?.clearItemFocus(),
     onUndo: () => checklistViewRef.current?.undo(),
     onRedo: () => checklistViewRef.current?.redo(),
   });

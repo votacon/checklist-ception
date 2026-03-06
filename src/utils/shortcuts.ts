@@ -15,6 +15,9 @@ export const SHORTCUTS = {
   SHOW_HELP: { key: "?", label: "?", description: "Show keyboard shortcuts" },
   FOCUS_MODE: { key: "f", label: "F", description: "Toggle focus mode" },
   SEARCH: { key: "/", label: "/", description: "Search items" },
+  ITEM_NAV: { key: "↑↓", label: "↑↓/JK", description: "Navigate items" },
+  ITEM_ACTION: { key: "Enter", label: "Enter/→", description: "Drill into item" },
+  ITEM_TOGGLE: { key: " ", label: "Space", description: "Toggle item" },
   UNDO: { key: "z", label: "Ctrl+Z", description: "Undo" },
   REDO: { key: "y", label: "Ctrl+Y", description: "Redo" },
 } as const satisfies Record<string, ShortcutDefinition>;

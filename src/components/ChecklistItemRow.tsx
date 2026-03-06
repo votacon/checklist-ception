@@ -25,6 +25,7 @@ interface ChecklistItemProps {
   onMove?: (id: string) => void;
   showMoveButton?: boolean;
   isActive?: boolean;
+  isFocused?: boolean;
   isCompact?: boolean;
   dropIndicator?: DropZone | null;
   levelPath?: string[];
@@ -41,6 +42,7 @@ export function ChecklistItemRow({
   onMove,
   showMoveButton = false,
   isActive = false,
+  isFocused = false,
   isCompact = false,
   dropIndicator = null,
   levelPath = [],
@@ -71,7 +73,7 @@ export function ChecklistItemRow({
   };
 
   return (
-    <div className="relative">
+    <div className="relative" data-item-id={item.id}>
       {/* Drop indicator: insertion line above */}
       {dropIndicator === "before" && (
         <div className="absolute top-0 left-0 right-0 h-0.5 bg-blue-500 z-10" />
@@ -86,7 +88,9 @@ export function ChecklistItemRow({
       className={`group flex items-center gap-1.5 overflow-hidden ${s(theme, "row")} ${
         isActive
           ? s(theme, "row-active")
-          : s(theme, "row-hover")
+          : isFocused
+            ? s(theme, "row-focused")
+            : s(theme, "row-hover")
       } ${isCompact ? "min-h-[32px] px-2 py-1" : "min-h-[40px] px-3 py-2"} ${
         isDragging ? "opacity-0" : ""
       } ${dropIndicator === "nest" ? "ring-2 ring-blue-500 bg-blue-500/10" : ""}`}
